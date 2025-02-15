@@ -1,0 +1,22 @@
+{
+  "name": "dbifc-15",
+  "version": "1.0.0",
+  "keywords": [],
+  "author": "",
+  "description": "",
+  "main": "./src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node ./src/index.js",
+    "dev": "nodemon ./src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "es-toolkit": "^1.32.0",
+    "puppeteer": "^24.2.1"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7",
+    "nodemon": "^3.1.9"
+  }
+}
