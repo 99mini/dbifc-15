@@ -79,7 +79,8 @@ const BRAND = ["jordan", "new%20balance", "converse", "vans", "asics"];
 const BRAND_OFFSET = {
   nike: 49,
   adidas: 25,
-  jordan: 4,
+  jordan: 25,
+  "new%20balance": 20,
 };
 
 /**
