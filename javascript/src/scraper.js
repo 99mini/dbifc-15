@@ -17,7 +17,17 @@ import puppeteer from "puppeteer";
 import dotenv from "dotenv";
 import { omit } from "es-toolkit";
 
-import { sleep, saveData, formatWonToNumber, appendMetaInfo, appendData, readLastLine, csvToJson, binarySearchForDate, getLineCount } from "./utils.js";
+import {
+  sleep,
+  saveData,
+  formatWonToNumber,
+  appendMetaInfo,
+  appendData,
+  readLastLine,
+  csvToJson,
+  binarySearchForDate,
+  getLineCount,
+} from "./utils.js";
 import logger from "./logger.js";
 
 dotenv.config();
@@ -162,7 +172,11 @@ class Scraper {
 
           // 응답 본문 가로채기
           /** @type {TimeSeriesData[]} */
-          const responseBody = await response.json().then((res) => res.items.map((item) => omit(item, ["product_option"])));
+          const responseBody = await response
+            .json()
+            .then((res) =>
+              res.items.map((item) => omit(item, ["product_option"]))
+            );
 
           if (responseBody && responseBody.length > 0) {
             if (!this.timeSeriesData[productId]) {
@@ -173,19 +187,35 @@ class Scraper {
 
             const lastLine = readLastLine(`${productId}.csv`);
 
-            const lastItem = lastLine ? csvToJson(lastLine, ["product_id", "price", "option", "date_created", "is_immediate_delivery_item"]) : undefined;
+            const lastItem = lastLine
+              ? csvToJson(lastLine, [
+                  "product_id",
+                  "price",
+                  "option",
+                  "date_created",
+                  "is_immediate_delivery_item",
+                ])
+              : undefined;
 
-            if (lastItem && lastItem.length === 1 && new Date(lastItem[0].date_created) < new Date(firstResponseDate)) {
+            if (
+              lastItem &&
+              lastItem.length === 1 &&
+              new Date(lastItem[0].date_created) < new Date(firstResponseDate)
+            ) {
               logger.log(`📌 [${productId}] 이미 수집된 데이터입니다`);
 
-              const dateArr = responseBody.map((item) => new Date(item.date_created).getTime());
+              const dateArr = responseBody.map((item) =>
+                new Date(item.date_created).getTime()
+              );
               const targetDate = new Date(lastItem[0].date_created).getTime();
 
               const targetIndex = binarySearchForDate(dateArr, targetDate);
 
               if (targetIndex !== -1) {
                 const slicedRes = responseBody.slice(targetIndex + 1);
-                logger.log(`📌 [${productId}] ${slicedRes[0].date_created}부터 저장: ${slicedRes.length}개`);
+                logger.log(
+                  `📌 [${productId}] ${slicedRes[0].date_created}부터 저장: ${slicedRes.length}개`
+                );
 
                 this.timeSeriesData[productId].push(...slicedRes);
                 appendData(slicedRes, productId);
@@ -193,7 +223,9 @@ class Scraper {
                 logger.log(`📌 [${productId}] 저장할 데이터가 없습니다`);
               }
             } else {
-              logger.log(`📌 [${productId}] 새로운 데이터 수집: ${responseBody.length}개`);
+              logger.log(
+                `📌 [${productId}] 새로운 데이터 수집: ${responseBody.length}개`
+              );
               this.timeSeriesData[productId].push(...responseBody);
 
               appendData(responseBody, productId);
@@ -271,12 +303,18 @@ class Scraper {
           }
         }
 
-        const offset = BRAND_OFFSET[brand] ? BRAND_OFFSET[brand] : BRAND_ITEM_OFFSET;
+        const offset = BRAND_OFFSET[brand]
+          ? BRAND_OFFSET[brand]
+          : BRAND_ITEM_OFFSET;
         const hrefsLimited = hrefs.slice(offset, offset + BRAND_ITEM_LIMIT);
 
         /** scrape details */
         {
-          for (let hrefCounter = 0; hrefCounter < hrefsLimited.length; hrefCounter++) {
+          for (
+            let hrefCounter = 0;
+            hrefCounter < hrefsLimited.length;
+            hrefCounter++
+          ) {
             // reset offset
             scroll_count_offset = 0;
 
@@ -291,8 +329,14 @@ class Scraper {
             const scrapeStartTime = new Date().getTime();
 
             // scrape meta data
-            const name = await page.$eval(".main-title-container .title", (el) => el.textContent);
-            const originalPrice = await page.$eval(".detail-box .product_info", (el) => el.textContent);
+            const name = await page.$eval(
+              ".main-title-container .title",
+              (el) => el.textContent
+            );
+            const originalPrice = await page.$eval(
+              ".detail-box .product_info",
+              (el) => el.textContent
+            );
 
             const newProductMetaData = {
               product_id: productId,
@@ -303,14 +347,35 @@ class Scraper {
 
             const lastMetaInfoRaw = readLastLine("product_meta_data");
 
-            const lastMetaInfo = lastMetaInfoRaw ? csvToJson(lastMetaInfoRaw, ["product_id", "name", "original_price", "brand"]) : undefined;
+            const lastMetaInfo = lastMetaInfoRaw
+              ? csvToJson(lastMetaInfoRaw, [
+                  "product_id",
+                  "name",
+                  "original_price",
+                  "brand",
+                ])
+              : undefined;
 
-            if (lastMetaInfo && lastMetaInfo.length === 1 && lastMetaInfo[0].product_id === productId) {
-              logger.log(`📌 [${hrefCounter + 1}/${hrefsLimited.length}] 이미 수집된 상품 정보입니다`);
+            if (
+              lastMetaInfo &&
+              lastMetaInfo.length === 1 &&
+              lastMetaInfo[0].product_id === productId
+            ) {
+              logger.log(
+                `📌 [${hrefCounter + 1}/${
+                  hrefsLimited.length
+                }] 이미 수집된 상품 정보입니다`
+              );
 
               scroll_count_offset = Math.floor(getLineCount(productId) / 50);
             } else {
-              logger.log(`🔍 [${hrefCounter + 1}/${hrefsLimited.length}] 상품 정보 수집 시작: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`);
+              logger.log(
+                `🔍 [${hrefCounter + 1}/${
+                  hrefsLimited.length
+                }] 상품 정보 수집 시작: [${brand}]${newProductMetaData.name}(${
+                  newProductMetaData.product_id
+                })`
+              );
 
               appendMetaInfo(newProductMetaData);
             }
@@ -329,8 +394,12 @@ class Scraper {
               const retryCount = 5;
 
               const scrollProductHistory = async (retry) => {
-                logger.log(`🔍 [${retry}/${retryCount}] 상품 채결 내역 수집 중: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`);
-                const timeSeriesBtn = await page.$("a.btn.outlinegrey.full.medium");
+                logger.log(
+                  `🔍 [${retry}/${retryCount}] 상품 채결 내역 수집 중: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`
+                );
+                const timeSeriesBtn = await page.$(
+                  "a.btn.outlinegrey.full.medium"
+                );
 
                 await timeSeriesBtn.click();
 
@@ -341,8 +410,16 @@ class Scraper {
                 for (let i = 0; i < SCROLL_COUNT + scroll_count_offset; i++) {
                   if (!(productId in this.timeSeriesData)) {
                     weightedDelay += API_CALL_DELAY * retry;
-                    logger.error(`🚫 [${hrefCounter + 1}/${hrefsLimited.length}] 상품 정보 수집 실패: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`);
-                    await closeBtn.click();
+                    logger.error(
+                      `🚫 [${hrefCounter + 1}/${
+                        hrefsLimited.length
+                      }] 상품 정보 수집 실패: [${brand}]${
+                        newProductMetaData.name
+                      }(${newProductMetaData.product_id})`
+                    );
+                    if (closeBtn && closeBtn.click) {
+                      await closeBtn.click();
+                    }
                     return;
                   }
 
@@ -354,7 +431,11 @@ class Scraper {
                     weightedDelay = API_CALL_DELAY;
                   }
 
-                  logger.log(`🚀 [${i + 1}/${SCROLL_COUNT + scroll_count_offset}] 스크롤 중...`);
+                  logger.log(
+                    `🚀 [${i + 1}/${
+                      SCROLL_COUNT + scroll_count_offset
+                    }] 스크롤 중...`
+                  );
 
                   await page.evaluate(() => {
                     const scrollable = document.querySelector(".price_body");
@@ -379,10 +460,24 @@ class Scraper {
               if (successScrape) {
                 // saveData(this.timeSeriesData[productId], productId);
 
-                logger.log(`📦 [${hrefCounter + 1}/${hrefsLimited.length}] 상품 정보 수집 완료: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`);
-                logger.log(`📦 [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id}): $${this.timeSeriesData[productId].length} 건`);
+                logger.log(
+                  `📦 [${hrefCounter + 1}/${
+                    hrefsLimited.length
+                  }] 상품 정보 수집 완료: [${brand}]${
+                    newProductMetaData.name
+                  }(${newProductMetaData.product_id})`
+                );
+                logger.log(
+                  `📦 [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id}): $${this.timeSeriesData[productId].length} 건`
+                );
               } else {
-                logger.error(`🚫 [${hrefCounter + 1}/${hrefsLimited.length}] 상품 정보 수집 실패: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`);
+                logger.error(
+                  `🚫 [${hrefCounter + 1}/${
+                    hrefsLimited.length
+                  }] 상품 정보 수집 실패: [${brand}]${
+                    newProductMetaData.name
+                  }(${newProductMetaData.product_id})`
+                );
               }
               const scrapeEndTime = new Date().getTime();
               logger.log(`🕒 소요 시간: ${scrapeEndTime - scrapeStartTime}ms`);
@@ -398,14 +493,17 @@ class Scraper {
       logger.info(`🎉 크롤링 완료`);
       logger.info(`📦 총 브랜드: ${BRAND.length} 개`);
       logger.info(`📦 총 상품: ${this.productMetaData.length} 개`);
-      logger.info(`📦 총 데이터: ${Object.values(this.timeSeriesData).flat().length} 건`);
+      logger.info(
+        `📦 총 데이터: ${Object.values(this.timeSeriesData).flat().length} 건`
+      );
       logger.info(`🕒 총 소요 시간: ${new Date().getTime() - startTime}ms`);
 
       const sortedScrapeTimerList = scrapeTimerList.sort((a, b) => a - b);
 
       let minTime = scrapeTimerList[0];
       let maxTime = scrapeTimerList[scrapeTimerList.length - 1];
-      let medianTime = sortedScrapeTimerList[Math.floor(sortedScrapeTimerList.length / 2)];
+      let medianTime =
+        sortedScrapeTimerList[Math.floor(sortedScrapeTimerList.length / 2)];
       let averageTime = 0;
 
       for (let i = 0; i < scrapeTimerList.length; i++) {
