@@ -33,13 +33,13 @@ export async function sleep(ms, logger, message) {
  * @param {number} target
  * @returns
  */
-export function binarySearchForDate(arr, target) {
+export function binarySearch(arr, target) {
   let left = 0;
   let right = arr.length - 1;
 
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
-    const midDate = new Date(arr[mid].date);
+    const midDate = arr[mid];
 
     if (midDate < target) {
       left = mid + 1;
@@ -262,10 +262,6 @@ export function removeDuplicatesAndOverWrite() {
   let count = 0;
 
   for (const file of files) {
-    if (file === "product_meta_data.csv") {
-      continue;
-    }
-
     const csv = readCsv(file);
     if (hasDuplicatesFromCsv(csv)) {
       const uniqueCsv = removeDuplicatesFromCsv(csv);

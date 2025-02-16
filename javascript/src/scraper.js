@@ -25,7 +25,7 @@ import {
   appendData,
   readLastLine,
   csvToJson,
-  binarySearchForDate,
+  binarySearch,
   getLineCount,
 } from "./utils.js";
 import logger from "./logger.js";
@@ -51,7 +51,7 @@ let scroll_count_offset = 0;
 /**
  * 스크롤 대기 시간 (ms)
  * */
-const SCROLL_DELAY = 8000;
+const SCROLL_DELAY = 4000;
 
 /**
  * 브랜드 당 크롤링할 상품 갯수
@@ -66,10 +66,10 @@ const BRAND_ITEM_OFFSET = 0;
 /**
  * API 요청 대기 시간 (ms)
  */
-const API_CALL_DELAY = 8000;
+const API_CALL_DELAY = 4000;
 
 /** 브랜드 리스트 */
-const BRAND = ["jordan", "new%20balance", "converse", "vans", "asics"];
+const BRAND = ["new%20balance", "jordan", "converse", "vans", "asics"];
 // const BRAND = ["nike", "adidas", "jordan", "new%20balance", "converse", "vans", "asics"];
 // const BRAND = ["nike"];
 
@@ -79,7 +79,7 @@ const BRAND = ["jordan", "new%20balance", "converse", "vans", "asics"];
 const BRAND_OFFSET = {
   nike: 49,
   adidas: 25,
-  jordan: 25,
+  jordan: 30,
   "new%20balance": 20,
 };
 
@@ -167,7 +167,6 @@ class Scraper {
 
         if (url.includes(`sales`)) {
           // API 요청인지 확인
-          console.log(`📌 API 요청 감지: ${method} ${url}`);
 
           const productId = url.split("/sales")[0].split("/").pop();
 
@@ -210,7 +209,7 @@ class Scraper {
               );
               const targetDate = new Date(lastItem[0].date_created).getTime();
 
-              const targetIndex = binarySearchForDate(dateArr, targetDate);
+              const targetIndex = binarySearch(dateArr, targetDate);
 
               if (targetIndex !== -1) {
                 const slicedRes = responseBody.slice(targetIndex + 1);
@@ -234,13 +233,10 @@ class Scraper {
           }
         }
       } catch (error) {
-        console.error("⚠ 응답 처리 중 오류 발생:", error);
         flag = true;
-        console.log("flag is true");
 
-        await sleep(API_CALL_DELAY, logger, "response error");
+        await sleep(API_CALL_DELAY);
 
-        console.log("flag is false");
         flag = false;
       }
     });
@@ -424,7 +420,7 @@ class Scraper {
                     return;
                   }
 
-                  await sleep(weightedDelay, logger, "weighted delay");
+                  await sleep(weightedDelay);
 
                   if (getFlag()) {
                     // weightedDelay += API_CALL_DELAY * retry;
@@ -437,13 +433,19 @@ class Scraper {
                       SCROLL_COUNT + scroll_count_offset
                     }] 스크롤 중...`
                   );
+                  logger.progress(
+                    SCROLL_COUNT + scroll_count_offset,
+                    i + 1,
+                    `[${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`
+                  );
 
                   await page.evaluate(() => {
                     const scrollable = document.querySelector(".price_body");
+                    if (!scrollable) return;
                     scrollable.scrollTop = scrollable.scrollHeight;
                   });
 
-                  await sleep(SCROLL_DELAY, logger, "scroll delay");
+                  await sleep(SCROLL_DELAY);
                 }
                 successScrape = true;
               };
@@ -482,6 +484,7 @@ class Scraper {
               }
               const scrapeEndTime = new Date().getTime();
               logger.log(`🕒 소요 시간: ${scrapeEndTime - scrapeStartTime}ms`);
+              logger.progress(hrefCounter + 1, hrefsLimited.length, brand);
 
               scrapeTimerList.push(scrapeEndTime - scrapeStartTime);
             }
@@ -524,10 +527,9 @@ class Scraper {
   }
 
   async test() {
-    /** @type {Record<string, TimeSeriesData[]>} */
-
     logger.init();
 
+    /** @type {Record<string, TimeSeriesData[]>} */
     const data = {
       0: [
         {

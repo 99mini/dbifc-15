@@ -3,6 +3,13 @@ import fs from "fs";
 
 const outputDir = path.join("logs");
 
+const methodMap = {
+  log: "LOG",
+  info: "INF",
+  warn: "WRN",
+  error: "ERR",
+};
+
 class Logger {
   /**@type {null | Logger } */
   _instance = null;
@@ -12,9 +19,6 @@ class Logger {
 
   /**@type {string} */
   filename = "";
-
-  /**@type {null | number} */
-  fd = null;
 
   constructor() {
     if (Logger._instance) {
@@ -39,6 +43,29 @@ class Logger {
     return this.logs;
   }
 
+  _insertLog(message) {
+    fs.appendFileSync(this.filename, message + "\n", "utf-8");
+  }
+
+  /**
+   *
+   * @param {string} message
+   * @param {{log|info|warn|error}} method
+   * @param {boolean} dev
+   *
+   */
+  _log(message, method = "log", dev = false) {
+    const timestamp = new Date().toISOString();
+    const logMessage = `${methodMap[method]}\t[${timestamp}]\t"${message}"`;
+    this.logs.push(logMessage);
+
+    if (dev) {
+      console[method](logMessage);
+    }
+
+    this._insertLog(logMessage);
+  }
+
   init() {
     if (!fs.existsSync(outputDir)) {
       fs.mkdirSync(outputDir, { recursive: true });
@@ -46,51 +73,44 @@ class Logger {
 
     this.filename = path.join(outputDir, `log_${new Date().toISOString()}.log`);
 
-    this.fd = fs.openSync(this.filename, "w");
-
     fs.writeFileSync(this.filename, "", "utf-8");
 
     this.info("Logger initialized");
   }
 
-  insertLog() {
-    fs.appendFileSync(this.filename, this.logs[this.count - 1] + "\n", "utf-8");
+  log(message, dev = false) {
+    this._log(message, "log", dev);
   }
 
-  log(message) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `LOG\t[${timestamp}]\t"${message}"`;
-    this.logs.push(logMessage);
-    console.debug(logMessage);
-
-    this.insertLog(logMessage);
+  error(message, dev = false) {
+    this._log(message, "error", dev);
   }
 
-  error(message) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `ERR\t[${timestamp}]\t"${message}"`;
-    this.logs.push(logMessage);
-    console.error(logMessage);
-
-    this.insertLog(logMessage);
+  info(message, dev = false) {
+    this._log(message, "info", dev);
   }
 
-  info(message) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `INF\t[${timestamp}]\t"${message}"`;
-    this.logs.push(logMessage);
-    console.info(logMessage);
-
-    this.insertLog(logMessage);
+  warn(message, dev = false) {
+    this._log(message, "warn", dev);
   }
 
-  warn(message) {
-    const timestamp = new Date().toISOString();
-    const logMessage = `WRN\t[${timestamp}]\t"${message}"`;
-    this.logs.push(logMessage);
-    console.warn(logMessage);
-
-    this.insertLog(logMessage);
+  /**
+   * @description progress log (dev only, not saved to log file). normalized to 25 chars
+   * @param {number} total
+   * @param {number} current
+   * @param {string} msg
+   * @example
+   * logger.progress(100, 0); // $ [__________] 0/100
+   * logger.progress(100, 50); // $ [##################] 50/100
+   * logger.progress(100, 100, "Finished"); // $ [##################] 100/100 (Finished)
+   */
+  progress(total, current, msg = "") {
+    const progress = Math.floor((current / total) * 25);
+    const progressString = `#${" ".repeat(progress)}${"_".repeat(
+      25 - progress
+    )}`;
+    const message = `[${progressString}] ${current}/${total} ${msg}`;
+    this._log(message, "log", true);
   }
 
   clear() {
@@ -106,9 +126,6 @@ class Logger {
   }
 
   close() {
-    if (this.fd) {
-      fs.closeSync(this.fd);
-    }
     this.clear();
   }
 }
