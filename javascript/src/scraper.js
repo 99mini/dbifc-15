@@ -32,7 +32,6 @@ import logger from "./logger.js";
 
 dotenv.config();
 
-// MARK: config
 const ID = process.env.ID;
 const PW = process.env.PW;
 
@@ -110,6 +109,7 @@ function getFlag() {
 }
 
 /**
+ * MARK: Scraper
  * @description scraping data from https://kream.co.kr/
  *
  */
@@ -378,6 +378,7 @@ class Scraper {
 
               appendMetaInfo(newProductMetaData);
             }
+
             this.productMetaData.push({
               product_id: productId,
               name,
