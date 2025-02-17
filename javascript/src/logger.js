@@ -71,7 +71,13 @@ class Logger {
       fs.mkdirSync(outputDir, { recursive: true });
     }
 
-    this.filename = path.join(outputDir, `log_${new Date().toISOString()}.log`);
+    this.filename = path.join(
+      outputDir,
+      `log_${new Date()
+        .toISOString()
+        .replaceAll(/\./g, "")
+        .replaceAll(/:/g, "-")}.log`
+    );
 
     fs.writeFileSync(this.filename, "", "utf-8");
 

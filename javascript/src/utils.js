@@ -9,8 +9,9 @@ import fs from "fs";
  * ```
  */
 export function formatWonToNumber(str) {
-  const regex = /[^0-9]/g;
-  return parseInt(str.replace(regex, ""));
+  const regex = /[\0-9]+원/gi;
+  const match = regex.exec(str);
+  return match ? parseInt(match[0].replace("원", "").replaceAll(",", "")) : 0;
 }
 
 /**
