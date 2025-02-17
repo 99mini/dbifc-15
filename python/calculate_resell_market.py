@@ -2,8 +2,7 @@ import pandas as pd
 import os
 
 # 데이터 경로 설정 (javascript/output 폴더에서 CSV 파일 로드)
-DATA_PATH = r"C:\Users\eujin\dbifc-15\javascript\output"
-
+DATA_PATH = os.path.join('..', 'javascript', 'output')
 
 def load_transaction_data(filename):
     """ 거래 데이터를 불러오는 함수 """
