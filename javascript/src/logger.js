@@ -95,7 +95,7 @@ class Logger {
   }
 
   /**
-   * @description progress log (dev only, not saved to log file). normalized to 25 chars
+   * @description progress log (dev only, not saved to log file)
    * @param {number} total
    * @param {number} current
    * @param {string} msg
@@ -105,9 +105,9 @@ class Logger {
    * logger.progress(100, 100, "Finished"); // $ [##################] 100/100 (Finished)
    */
   progress(total, current, msg = "") {
-    const progress = Math.floor((current / total) * 25);
+    const progress = Math.floor((current / total) * 100);
     const progressString = `#${" ".repeat(progress)}${"_".repeat(
-      25 - progress
+      100 - progress
     )}`;
     const message = `[${progressString}] ${current}/${total} ${msg}`;
     this._log(message, "log", true);
