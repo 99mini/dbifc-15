@@ -69,7 +69,7 @@ const BRAND_ITEM_OFFSET = 0;
 const API_CALL_DELAY = 4000;
 
 /** 브랜드 리스트 */
-const BRAND = ["new%20balance", "jordan", "converse", "vans", "asics"];
+const BRAND = ["converse", "vans", "asics"];
 // const BRAND = ["nike", "adidas", "jordan", "new%20balance", "converse", "vans", "asics"];
 // const BRAND = ["nike"];
 
@@ -81,6 +81,8 @@ const BRAND_OFFSET = {
   adidas: 25,
   jordan: 30,
   "new%20balance": 20,
+  converse: 25,
+  vans: 17,
 };
 
 /**
@@ -433,11 +435,11 @@ class Scraper {
                       SCROLL_COUNT + scroll_count_offset
                     }] 스크롤 중...`
                   );
-                  logger.progress(
-                    SCROLL_COUNT + scroll_count_offset,
-                    i + 1,
-                    `[${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`
-                  );
+                  // logger.progress(
+                  //   SCROLL_COUNT + scroll_count_offset,
+                  //   i + 1,
+                  //   `[${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`
+                  // );
 
                   await page.evaluate(() => {
                     const scrollable = document.querySelector(".price_body");
@@ -484,7 +486,7 @@ class Scraper {
               }
               const scrapeEndTime = new Date().getTime();
               logger.log(`🕒 소요 시간: ${scrapeEndTime - scrapeStartTime}ms`);
-              logger.progress(hrefCounter + 1, hrefsLimited.length, brand);
+              // logger.progress(hrefCounter + 1, hrefsLimited.length, brand);
 
               scrapeTimerList.push(scrapeEndTime - scrapeStartTime);
             }

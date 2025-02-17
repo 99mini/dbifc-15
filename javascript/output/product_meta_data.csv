@@ -73,11 +73,6 @@ product_id,name,original_price,brand
 23879, Nike Air Zoom Spiridon Cage 2 Metallic Silver ,NaN,nike
 379514, Nike Zoom Fly 6 Eliud Kipchoge ,219000,nike
 306363, (W) Nike Shox TL Pure Platinum and Metallic Silver ,209000,nike
-300622, (W) Adidas Taekwondo Core Black Cloud White ,139000,adidas
-47058, Adidas Spezial Handball Light Blue ,139000,adidas
-367655, Adidas Stadt Grey Three Grey Five ,109000,adidas
-86123, Adidas Tobacco Gruen Cream White Bliss ,139000,adidas
-278102, Adidas Spezial Handball Night Indigo ,139000,adidas
 91629, (W) Adidas Gazelle Bold Pink Glow Victory Blue ,139000,adidas
 248287, (W) Adidas Spezial Handball Earth Strata Off White ,139000,adidas
 30987, Adidas Superstar White Black ,109000,adidas
@@ -234,3 +229,78 @@ product_id,name,original_price,brand
 12595, Vans Authentic Black White ,69000,vans
 362564, Vans x Mark SBTG Authentic Black ,105000,vans
 28264, Vans Vault OG Authentic LX Red ,89000,vans
+176639, Converse One Star Pro Ox Black White ,99000,converse
+30256, Converse Chuck 70 Ox Midnight Clover ,89000,converse
+252398, Converse x Stussy Chuck 70 Hi Sky Blue ,129000,converse
+12034, Converse x Play Comme des Garcons Chuck 70 Hi Black ,198000,converse
+252399, Converse x Stussy Chuck 70 Ox Poppy Red ,125000,converse
+321249, Converse Run Star Trainer Egret Black ,90129700,converse
+9126, Converse Chuck Taylor All Star Ox Optical White ,55000,converse
+29044, Converse Chuck 70 High Vintage Canvas White ,95000,converse
+270879, Converse Chuck 70 Ox Seasonal Color Pink ,NaN,converse
+327060, Converse One Star Pro Flower Light Orchid ,109000,converse
+192316, Converse Chuck Taylor All Star Leather Ox Black Mono ,6598300,converse
+184727, Converse Eddie Cernicky One Star Pro Ox Kinetic Blue ,99000,converse
+277575, Converse x Play Comme des Garcons Chuck 70 Ox Steel Gray ,198000,converse
+46332, Converse Chuck 70 Ox Vintage Canvas Natural ,95000,converse
+35705, Converse x Play Comme des Garcons Chuck 70 Hi Blue Quartz ,198000,converse
+41036, (W) Converse Chuck Taylor All Star Lift Ox Black ,89000,converse
+28719, Converse Chuck Taylor All Star Hi Leather Black ,69000,converse
+338144, Converse One Star Pro Classic Suede Secret Pines ,99000,converse
+236248, Converse Chuck 70 Ox Vintage Canvas Enamel Red ,95000,converse
+75039, Converse x Stussy Chuck 70 High Plumeria ,129000,converse
+52012, Converse x Drkshdw Drkstr Chuck 70 High Black ,209000,converse
+30637, Converse Chuck 70 Ox Vintage Canvas Rush Blue ,89000,converse
+35706, Converse x Play Comme des Garcons Chuck 70 Ox Steel Gray ,198000,converse
+227958, Converse x Feng Chen Wang Chuck 70 Ox 2-in-1 Myrtle ,189000,converse
+226440, Converse Chuck 70 Leather Black ,109000,converse
+302334, Vans Authentic Wave Washed Red ,75000,vans
+24889, Vans Era Leopard True White ,80115300,vans
+18448, Vans Old Skool Black ,85000,vans
+298296, Vans Old Skool Canvas Black True White ,85000,vans
+36575, Vans Authentic 44 DX Anaheim Factory Classic White ,85000,vans
+24328, Vans Vault OG Old Skool LX Black ,99000,vans
+230099, Vans Half Cab 33 DX Anaheim Factory OG Smoke Black ,105000,vans
+32671, Vans Vault OG Authentic LX Navy ,89000,vans
+154543, Vans ComfyCush Authentic Black True White ,75000,vans
+213528, Vans Authentic Color Theory Dazzling Blue ,75000,vans
+39522, Vans Authentic 44 DX Anaheim Factory Racing Red ,79000,vans
+100315, Vans Authentic Suede Marshmallow Black ,79000,vans
+48825, Vans Classic Slip-On Black ,69000,vans
+259842, Vans Old Skool Wave Washed Red ,89000,vans
+123370, Vans ComfyCush One Checkerboard Racing Red Marshmallow ,599119000,vans
+26628, Vans Old Skool 36 DX Anaheim Factory Black White ,85122500,vans
+95842, Vans ComfyCush One Checkerboard Green ,109000,vans
+41281, Vans Classic Slip-On Platform Checkerboard ,69000,vans
+323764, Vans x BAPE Sk8-Mid Reissue 83 LX Black ,179000,vans
+297598, Vans Era Black ,70105900,vans
+32644, Vans Old Skool Black Gum ,69000,vans
+168594, Vans Style 36 Marshmallow Black ,NaN,vans
+13450, Vans Authentic White ,5072000,vans
+372177, Vans Skate Half Cab Charcoal ,150000,vans
+224472, Vans Authentic Marshmallow Gum ,69000,vans
+261734, Asics Unlimited Gel-Kayano 14 Carrier Grey Black ,179000,asics
+154837, Asics Jog 100 S White Black - 2E Wide (Korea Exclusive) ,89000,asics
+97779, (W) Asics Gel-Kayano 14 White Midnight ,179000,asics
+129482, Asics Gel-Kayano 14 Cream Black ,179000,asics
+36038, Asics Jog 100 2 Black ,79000,asics
+261753, Asics Unlimited Gel-Kayano 14 Oyster Grey Clay Grey ,179000,asics
+227052, Asics Gel-Kayano 14 Black Pure Silver ,179000,asics
+99049, Asics Gel-Venture 6 Feather Grey Black ,109000,asics
+261754, Asics Unlimited Gel-Kayano 14 Smoke Grey ,179000,asics
+328190, Asics Jog 100 2 Black - 4E Extra Wide ,79000,asics
+99156, Asics Gel-Venture 6 Carrier Grey ,109000,asics
+259795, Asics Gel-1130 White Cloud Grey ,109000,asics
+421248, Asics Gel-Nimbus 10.1 Black Midnight ,189000,asics
+45562, Asics Jog 100 S Black - 2E Wide ,79000,asics
+436948, Asics x Juliana Salazar Gel-Kayano 14 Eucalyptus Vanilla Ice ,219000,asics
+304929, Asics Gel-Nimbus 10.1 Piedmont Grey Pure Silver ,189000,asics
+95203, (W) Asics Gel-1130 White Midnight ,99000,asics
+267751, Asics Life Walker 010 Grey - 3E Wide ,79000,asics
+56582, Asics Gel-Sonoma 15-50 Black ,129000,asics
+369417, Asics x Cecilie Bahnsen Gel-Terrain Black ,339000,asics
+119424, Asics Gel-1130 White Black ,119000,asics
+424509, Asics GT-2160 Black Pure Silver ,139000,asics
+330928, Asics Life Walker 010 Coffee - 3E Wide ,NaN,asics
+213441, Asics Gel-Kayano 14 Birch Dark Pewter ,179000,asics
+418984, Asics Novablast 5 White Piedmont Grey ,159000,asics
