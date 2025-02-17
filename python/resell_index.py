@@ -1,6 +1,12 @@
+import os
 import pandas as pd
 
-def calculate_product_resell_index(transactions, product_id, baseline_date):
+# 데이터 경로 설정 (javascript/output 폴더)
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "javascript", "output"))
+# 파일 경로 설정 (product_meta_data.csv 로드)
+product_meta_path = os.path.join(DATA_PATH, "product_meta_data.csv") 
+
+def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date):
     """
     특정 상품 ID에 대해 거래량 가중치를 적용한 리셀 지수를 계산하는 함수
     :param transactions: 전체 거래 데이터 (DataFrame)
@@ -24,7 +30,9 @@ def calculate_product_resell_index(transactions, product_id, baseline_date):
     ).reset_index()
 
     # 기준 시점 가격 및 거래량 설정
-    baseline_price = product_resell_index["avg_price"].iloc[0]
+    #baseline_price = product_resell_index["original_price"].iloc[0]
+    baseline_price = product_meta[product_meta["product_id"] == product_id]["original_price"].values[0]
+
     baseline_volume = product_resell_index["total_volume"].iloc[0]
 
     # 지수 계산
@@ -32,5 +40,7 @@ def calculate_product_resell_index(transactions, product_id, baseline_date):
         (product_resell_index["avg_price"] * product_resell_index["total_volume"]) /
         (baseline_price * baseline_volume) * 100
     )
+    
 
+    print(f"{product_id} 상품의 발매가: {baseline_price}")
     return product_resell_index
