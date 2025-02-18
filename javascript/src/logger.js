@@ -84,19 +84,19 @@ class Logger {
     this.info("Logger initialized");
   }
 
-  log(message, dev = false) {
+  log(message, dev = true) {
     this._log(message, "log", dev);
   }
 
-  error(message, dev = false) {
+  error(message, dev = true) {
     this._log(message, "error", dev);
   }
 
-  info(message, dev = false) {
+  info(message, dev = true) {
     this._log(message, "info", dev);
   }
 
-  warn(message, dev = false) {
+  warn(message, dev = true) {
     this._log(message, "warn", dev);
   }
 

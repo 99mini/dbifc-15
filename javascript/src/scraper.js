@@ -68,7 +68,7 @@ const BRAND_ITEM_OFFSET = 0;
 const API_CALL_DELAY = 4000;
 
 /** 브랜드 리스트 */
-const BRAND = ["converse", "vans", "asics"];
+const BRAND = ["salomon", "reebok", "converse", "asics", ""];
 // const BRAND = ["nike", "adidas", "jordan", "new%20balance", "converse", "vans", "asics"];
 // const BRAND = ["nike"];
 
@@ -80,7 +80,7 @@ const BRAND_OFFSET = {
   adidas: 25,
   jordan: 30,
   "new%20balance": 20,
-  converse: 25,
+  converse: 45,
   vans: 17,
 };
 
