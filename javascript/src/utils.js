@@ -133,8 +133,8 @@ export function clearOutput() {
  *
  * @param {ProductMetaData} data
  */
-export function appendMetaInfo(data) {
-  const filename = path.join("output", "product_meta_data.csv");
+export function appendMetaInfo(data, target = "product_meta_data.csv") {
+  const filename = path.join("output", target);
 
   if (!fs.existsSync(filename)) {
     const header = Object.keys(data).join(",");
