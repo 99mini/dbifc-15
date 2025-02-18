@@ -273,3 +273,16 @@ export function removeDuplicatesAndOverWrite() {
 
   return count;
 }
+
+export function dropZeroRows(target) {
+  const csv = readCsv(target);
+  const lines = csv.split("\n");
+
+  const nonZeroLines = lines.filter((line) => {
+    const values = line.split(",").map((val) => val.trim());
+    return !values.some((val) => val === "0");
+  });
+
+  const csvWithoutZero = nonZeroLines.join("\n");
+  saveCSV(csvWithoutZero, target);
+}

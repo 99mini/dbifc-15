@@ -27,7 +27,6 @@ product_id,name,original_price,brand
 97347, (W) Nike Zoom Vomero 5 Photon Dust and Metallic Silver ,189000,nike
 9655, Nike x J.Crew Killshot 2 Sail Midnight Navy ,109000,nike
 23626, Nike x Supreme Air Force 1 Low Black ,169900,nike
-381095, (W) Nike V2K Run Black Dark Smoke Grey ,0,nike
 81175, (W) Nike Zoom Vomero 5 Cobblestone and Flat Pewter ,189000,nike
 252533, Nike Zoom Vomero 5 Photon Dust Gridiron ,189000,nike
 107805, Nike ZoomX Vaporfly Next% 3 White Grey ,299000,nike
@@ -38,7 +37,6 @@ product_id,name,original_price,brand
 422165, Nike Kobe 5 Protro Year of the Mamba Eggplant ,239000,nike
 78768, Nike Air Force 1 '07 LV8 Midnight Navy ,139000,nike
 28180, Nike Air Force 1 '07 White Black ,139000,nike
-23879, Nike Air Zoom Spiridon Cage 2 Metallic Silver ,0,nike
 211029, Nike Kobe 6 Protro Reverse ,219000,nike
 442814, (GS) Nike Kobe 6 Protro Sail ,139000,nike
 368749, Nike Zoom Fly 6 White Smoke Grey ,209000,nike
@@ -54,7 +52,6 @@ product_id,name,original_price,brand
 15248, Adidas Samba OG Black White Gum ,149000,adidas
 26344, Adidas Superstar Core Black White ,139000,adidas
 96970, Adidas Tobacco Pantone Mesa ,139000,adidas
-216830, Adidas VL Court 2.0 Cream Brown ,0,adidas
 122782, Adidas Bermuda Glow Pink ,139000,adidas
 350536, Adidas Samba OG Cream White Dark Brown ,139000,adidas
 377230, Adidas x Song for the Mute Country OG Core Black Cream White ,179000,adidas
@@ -70,8 +67,6 @@ product_id,name,original_price,brand
 377231, Adidas x Song for the Mute Country OG Bronze Strata Wild Brown ,179000,adidas
 227047, (W) Adidas Spezial Handball Wonder White Core Black ,158400,adidas
 140265, (W) Adidas Spezial Handball Clear Pink ,139000,adidas
-283323, Adidas Neo VL Court 2.0 White Blue ,0,adidas
-187442, Adidas VL Court Base Cloud White Core Black ,0,adidas
 278102, Adidas Spezial Handball Night Indigo ,139000,adidas
 300622, (W) Adidas Taekwondo Core Black Cloud White ,139000,adidas
 248287, (W) Adidas Spezial Handball Earth Strata Off White ,139000,adidas
@@ -86,7 +81,6 @@ product_id,name,original_price,brand
 67193, Adidas Adilette Clog Black White ,55000,adidas
 305620, (W) Adidas Samba OG Cloud White Wonder Quartz ,144000,adidas
 168701, Adidas Spezial Handball Scarlet Cloud White ,158400,adidas
-187443, Adidas VL Court Base Core Black Cloud White ,0,adidas
 216183, (W) Adidas Spezial Handball Core Black Clear Pink ,139000,adidas
 293285, Adidas x Inter Miami CF Samba Core Black Light Pink ,172800,adidas
 385216, Adidas x Song for the Mute Country OG Maroon Core Black ,179000,adidas
@@ -94,8 +88,6 @@ product_id,name,original_price,brand
 349664, (W) Adidas Tokyo Black ,139000,adidas
 163261, (W) Adidas Gazelle Bold Cream White Collegiate Green ,139000,adidas
 91629, (W) Adidas Gazelle Bold Pink Glow Victory Blue ,139000,adidas
-274107, Adidas Stadt Magic Beige ,0,adidas
-312335, (W) Adidas Bermuda Preloved Brown ,0,adidas
 354606, Adidas Stadt Core Black Carbon ,109000,adidas
 64439, Adidas Yeezy Foam RNNR Onyx ,129000,adidas
 90918, (W) Adidas Gazelle Indoor Blue Fusion Cloud White ,169000,adidas
@@ -156,7 +148,6 @@ product_id,name,original_price,brand
 226053, New Balance 1906R Harbor Grey Silver Metalic ,179000,new%20balance
 186600, New Balance 1906R Triple Black ,179000,new%20balance
 101218, New Balance 530 Premium Vintage Grey Matter ,159000,new%20balance
-422895, New Balance 530 White Silver Metallic ,0,new%20balance
 102871, New Balance 2002R Premium Vintage Grey ,189000,new%20balance
 44101, New Balance 410v5 Black - 2E Wide ,99000,new%20balance
 23854, (W) New Balance 993 Made in USA Grey - B Standard ,279000,new%20balance
@@ -209,7 +200,6 @@ product_id,name,original_price,brand
 13494, (W) Converse Chuck Taylor All Star Lift Ox White Black ,93600,converse
 23510, Converse x Play Comme des Garcons Chuck 70 Ox White ,198000,converse
 41992, Converse Chuck 70 Ox White ,95000,converse
-231513, Converse Chuck 70 Leather Zip Black ,0,converse
 92301, Converse x Ader Error Chuck 70 High White ,129000,converse
 99598, Converse Chuck 70 High Plus Black ,109000,converse
 64629, Converse x Stussy Chuck 70 High Black ,129000,converse
@@ -226,7 +216,6 @@ product_id,name,original_price,brand
 176639, Converse One Star Pro Ox Black White ,99000,converse
 75039, Converse x Stussy Chuck 70 High Plumeria ,129000,converse
 130341, Converse x Ader Error Chuck 70 Ox Imperial Blue ,139000,converse
-270879, Converse Chuck 70 Ox Seasonal Color Pink ,0,converse
 130338, Converse x Ader Error Chuck 70 High White ,175000,converse
 252398, Converse x Stussy Chuck 70 Hi Sky Blue ,129000,converse
 35706, Converse x Play Comme des Garcons Chuck 70 Ox Steel Gray ,198000,converse
@@ -253,13 +242,10 @@ product_id,name,original_price,brand
 9127, Vans Slip-On Checkerboard ,72000,vans
 196711, Vans Carver Low Black ,114700,vans
 42130, Vans Authentic Red ,59000,vans
-70910, Vans ComfyCush Old Skool Black True white ,0,vans
 46265, Vans Old Skool Platform Black White ,126600,vans
-305701, Vans Authentic Black ,0,vans
 24014, Vans Checkerboard Comfycush One Black ,109000,vans
 9115, Vans Style 36 Marshmallow Racing Red ,69000,vans
 12595, Vans Authentic Black White ,69000,vans
-111185, Vans Knu-Skool Black True White ,0,vans
 32285, Vans Authentic 44 DX Anaheim Factory Black ,79000,vans
 32644, Vans Old Skool Black Gum ,69000,vans
 297598, Vans Era Black ,105500,vans
@@ -276,14 +262,12 @@ product_id,name,original_price,brand
 302334, Vans Authentic Wave Washed Red ,75000,vans
 362564, Vans x Mark SBTG Authentic Black ,105000,vans
 13450, Vans Authentic White ,72000,vans
-168594, Vans Style 36 Marshmallow Black ,0,vans
 24325, Vans Style 36 Marshmallow Dress Blues ,69000,vans
 298296, Vans Old Skool Canvas Black True White ,85000,vans
 259842, Vans Old Skool Wave Washed Red ,89000,vans
 39522, Vans Authentic 44 DX Anaheim Factory Racing Red ,79000,vans
 41281, Vans Classic Slip-On Platform Checkerboard ,69000,vans
 154543, Vans ComfyCush Authentic Black True White ,75000,vans
-348136, Vans Classic Slip-On Theory Checkerboard Dark Purple ,0,vans
 100315, Vans Authentic Suede Marshmallow Black ,79000,vans
 48825, Vans Classic Slip-On Black ,69000,vans
 24328, Vans Vault OG Old Skool LX Black ,99000,vans
@@ -296,7 +280,6 @@ product_id,name,original_price,brand
 216178, Vans x IAB Studio Half Cab Black Purple ,119000,vans
 65213, Vans Authentic True White ,69000,vans
 42531, Vans Authentic 44 DX Anaheim Factory Dress Blues ,85000,vans
-372204, Vans Skate Half Cab Dark Brown Black ,0,vans
 312541, Vans Authentic Wave Washed Black ,75000,vans
 296776, Vans Old Skool Wave Washed Black ,89000,vans
 261734, Asics Unlimited Gel-Kayano 14 Carrier Grey Black ,179000,asics
@@ -323,11 +306,9 @@ product_id,name,original_price,brand
 267751, Asics Life Walker 010 Grey - 3E Wide ,79000,asics
 213441, Asics Gel-Kayano 14 Birch Dark Pewter ,179000,asics
 424509, Asics GT-2160 Black Pure Silver ,139000,asics
-330928, Asics Life Walker 010 Coffee - 3E Wide ,0,asics
 61862, (W) Asics Gel-1130 Cream Pure Silver ,109000,asics
 354545, (W) Asics Gel-1130 Cream Clay Grey ,109000,asics
 418984, Asics Novablast 5 White Piedmont Grey ,159000,asics
-94616, Asics Gel-1090 Blue Grey ,0,asics
 153967, Asics Gel-1130 Steel Grey Pure Silver ,109000,asics
 304930, Asics Gel-Nimbus 10.1 Ocean Haze Pure Silver ,189000,asics
 358616, Asics Gel-Nunobiki Cream Dark Olive ,119000,asics
