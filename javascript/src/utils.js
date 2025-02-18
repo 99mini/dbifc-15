@@ -286,3 +286,30 @@ export function dropZeroRows(target) {
   const csvWithoutZero = nonZeroLines.join("\n");
   saveCSV(csvWithoutZero, target);
 }
+
+export function findFileById(id) {
+  const files = getAllOutputFiles();
+  return files.find((file) => file.startsWith(id));
+}
+
+/**
+ * @description Find non-scraped product by meta data
+ * @param {string} metaFileName "product_meta_data.csv | product_meta_data2.csv"
+ * @returns {{string[]}}스크레핑되지 않은 상품 id 리스트
+ */
+export function findNonScrapedProductByMetaData(metaFileName) {
+  const metaFile = readCsv(metaFileName);
+  const files = getAllOutputFiles();
+  const meta = csvToJson(
+    metaFile,
+    ["product_id", "name", "original_price", "brand"],
+    true
+  );
+
+  const ids = meta.map((item) => item.product_id);
+  const fileIds = files.map((file) => file.split(".")[0]);
+
+  const ret = ids.filter((id) => !fileIds.includes(id));
+
+  return ret;
+}
