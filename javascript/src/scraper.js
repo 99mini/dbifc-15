@@ -101,10 +101,15 @@ const BRAND_OFFSET = {
  *   adidas: "https://kream.co.kr/brands/Adidas?tab=44",
  * }
  */
-const BRAND_TARGET_MAP = BRAND.reduce((acc, brand) => {
-  acc[brand] = `https://kream.co.kr/brands/${brand}?tab=44`;
-  return acc;
-}, {});
+
+// const BRAND_TARGET_MAP = BRAND.reduce((acc, brand) => {
+//   acc[brand] = `https://kream.co.kr/brands/${brand}?tab=44`;
+//   return acc;
+// }, {});
+
+const BRAND_TARGET_MAP = {
+  nike: "https://kream.co.kr/brands/nike?tab=44",
+};
 
 /**
  * @description 응답 초과 대기 flag
@@ -331,25 +336,79 @@ class Scraper {
     {
       for (const [brand, target] of Object.entries(BRAND_TARGET_MAP)) {
         logger.log(`🔍 브랜드 정보 수집 중: ${brand}`);
-        const hrefs = [];
+        // const hrefs = [];
+
+        const hrefs = [
+          "106939",
+          "122782",
+          "12831",
+          "13100",
+          "137241",
+          "152299",
+          "15248",
+          "15251",
+          "153967",
+          "163261",
+          "178192",
+          "179981",
+          "18402",
+          "21441",
+          "216830",
+          "21935",
+          "219423",
+          "24137",
+          "242158",
+          "250825",
+          "25785",
+          "261733",
+          "261734",
+          "26344",
+          "266889",
+          "267753",
+          "304930",
+          "355995",
+          "358615",
+          "358616",
+          "36",
+          "374148",
+          "380550",
+          "397368",
+          "410214",
+          "414409",
+          "417822",
+          "418892",
+          "430299",
+          "433210",
+          "433877",
+          "435348",
+          "436948",
+          "441327",
+          "441592",
+          "50998",
+          "65628",
+          "67945",
+          "82296",
+          "94616",
+          "96970",
+        ].map((id) => `https://kream.co.kr/products/${id}`);
 
         /** goto target and append hrefs */
-        try {
-          await page.goto(target);
+        // try {
+        //   await page.goto(target);
 
-          await page.waitForSelector(".product_card");
+        //   await page.waitForSelector(".product_card");
 
-          const products = await page.$$(".product_card > a");
+        //   const products = await page.$$(".product_card > a");
 
-          for (const product of products) {
-            const href = await product.evaluate((el) => el.href);
+        //   for (const product of products) {
+        //     const href = await product.evaluate((el) => el.href);
 
-            hrefs.push(href);
-          }
-        } catch (error) {
-          logger.error(`🚫 브랜드 정보 수집 실패: ${error}`);
-          continue;
-        }
+        //     hrefs.push(href);
+        //   }
+        // } catch (error) {
+        //   logger.error(`🚫 브랜드 정보 수집 실패: ${error}`);
+        //   continue;
+        // }
 
         const offset = BRAND_OFFSET[brand]
           ? BRAND_OFFSET[brand]
@@ -360,13 +419,14 @@ class Scraper {
         {
           for (
             let hrefCounter = 0;
-            hrefCounter < hrefsLimited.length;
+            // hrefCounter < hrefsLimited.length;
+            hrefCounter < hrefs.length;
             hrefCounter++
           ) {
             // reset offset
             scroll_count_offset = 0;
 
-            const href = hrefsLimited[hrefCounter];
+            const href = hrefs[hrefCounter];
 
             const productId = href.split("/").pop();
 
@@ -435,7 +495,6 @@ class Scraper {
               brand,
             });
 
-            continue;
             // scrape time series data
             {
               let weightedDelay = API_CALL_DELAY;

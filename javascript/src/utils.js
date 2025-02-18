@@ -151,7 +151,7 @@ export function appendMetaInfo(data, target = "product_meta_data.csv") {
 
 /**
  *
- * @param {string} name file name wihout extension
+ * @param {string} name file name with extension
  * @returns
  */
 export function readLastLine(name) {
@@ -274,6 +274,10 @@ export function removeDuplicatesAndOverWrite() {
   return count;
 }
 
+/**
+ * @description 가격이 0인 상품 제거
+ * @param {string} target "product_meta_data.csv | product_meta_data2.csv"
+ */
 export function dropZeroRows(target) {
   const csv = readCsv(target);
   const lines = csv.split("\n");
@@ -310,6 +314,38 @@ export function findNonScrapedProductByMetaData(metaFileName) {
   const fileIds = files.map((file) => file.split(".")[0]);
 
   const ret = ids.filter((id) => !fileIds.includes(id));
+
+  return ret;
+}
+
+function isBiggerThanBaseDate(id, baseDate) {
+  const lastLine = readLastLine(`${id}.csv`);
+
+  const { date_created } = csvToJson(
+    lastLine,
+    [
+      "product_id",
+      "price",
+      "option",
+      "date_created",
+      "is_immediate_delivery_item",
+    ],
+    false
+  )[0];
+
+  return new Date(date_created) > new Date(baseDate);
+}
+
+/**
+ * @description 기준일까지 거래 데이터를 확보하지 못한 상품 리스트
+ * @param {string} baseDate
+ * @returns
+ */
+export function findNonScrapedProductByDate(baseDate) {
+  const files = getAllOutputFiles();
+  const fileIds = files.map((file) => file.split(".")[0]);
+
+  const ret = fileIds.filter((id) => isBiggerThanBaseDate(id, baseDate));
 
   return ret;
 }
