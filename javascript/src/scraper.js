@@ -13,27 +13,29 @@
  *  = 165000 (165초)
  */
 
-import puppeteer from "puppeteer";
 import dotenv from "dotenv";
 import { omit } from "es-toolkit";
+import puppeteer from "puppeteer";
 
-import {
-  sleep,
-  saveData,
-  formatWonToNumber,
-  appendMetaInfo,
-  appendData,
-  readLastLine,
-  csvToJson,
-  binarySearch,
-  getLineCount,
-} from "./utils.js";
 import logger from "./logger.js";
+import {
+  appendData,
+  binarySearch,
+  csvToJson,
+  findNonScrapedProductByDate,
+  formatWonToNumber,
+  getMetaIds,
+  readLastLine,
+  saveData,
+  sleep,
+} from "./utils.js";
 
 dotenv.config();
 
 const ID = process.env.ID;
 const PW = process.env.PW;
+
+const BASE_DATE = "2025-01-01T00:00:00Z";
 
 // MARK: constants
 /**
@@ -122,6 +124,11 @@ function getFlag() {
 }
 
 /**
+ * 추가 스크롤 횟수
+ */
+let moreScroll = false;
+
+/**
  * MARK: Scraper
  * @description scraping data from https://kream.co.kr/
  *
@@ -184,11 +191,21 @@ class Scraper {
     logger.close();
   }
 
+  initMetaData() {
+    const metaDatas = getMetaIds("product_meta_data2.csv");
+    this.timeSeriesData = metaDatas.reduce((acc, product_id) => {
+      acc[product_id] = [];
+      return acc;
+    }, {});
+  }
+
   async run() {
     const startTime = new Date().getTime();
     const scrapeTimerList = [];
 
     logger.init();
+
+    this.initMetaData();
 
     // clear
     // {
@@ -340,53 +357,9 @@ class Scraper {
         logger.log(`🔍 브랜드 정보 수집 중: ${brand}`);
         // const hrefs = [];
 
-        const hrefs = [
-          "229945",
-          "28180",
-          "442814",
-          "388425",
-          "396523",
-          "323894",
-          "227047",
-          "80819",
-          "64439",
-          "90918",
-          "381854",
-          "52130",
-          "47257",
-          "72385",
-          "237579",
-          "19328",
-          "354255",
-          "77086",
-          "74156",
-          "429528",
-          "435203",
-          "226052",
-          "215023",
-          "24008",
-          "381872",
-          "317696",
-          "74712",
-          "178942",
-          "121861",
-          "277940",
-          "82783",
-          "313064",
-          "302266",
-          "23764",
-          "288895",
-          "65213",
-          "42531",
-          "312541",
-          "296776",
-          "436226",
-          "61862",
-          "354545",
-          "366013",
-          "118274",
-          "436224",
-        ].map((id) => `https://kream.co.kr/products/${id}`);
+        const hrefs = findNonScrapedProductByDate(BASE_DATE).map(
+          (id) => `https://kream.co.kr/products/${id}`
+        );
 
         /** goto target and append hrefs */
         // try {
