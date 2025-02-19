@@ -35,7 +35,7 @@ dotenv.config();
 const ID = process.env.ID;
 const PW = process.env.PW;
 
-const BASE_DATE = "2025-01-01T00:00:00Z";
+const BASE_DATE = "2025-01-31T00:00:00Z";
 
 // MARK: constants
 /**

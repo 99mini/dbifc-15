@@ -5,7 +5,7 @@ import {
   findNonScrapedProductByMetaData,
 } from "./utils.js";
 
-const BASE_DATE = "2025-01-01T00:00:00Z";
+const BASE_DATE = "2025-01-31T00:00:00Z";
 
 async function main() {
   await scraper.run();
