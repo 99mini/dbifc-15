@@ -126,7 +126,7 @@ function getFlag() {
 /**
  * 추가 스크롤 횟수
  */
-let moreScroll = false;
+let moreScroll = true;
 
 /**
  * MARK: Scraper
@@ -293,6 +293,8 @@ class Scraper {
               this.timeSeriesData[productId].push(...responseBody);
 
               appendData(responseBody, productId);
+
+              moreScroll = new Date(BASE_DATE) < new Date(firstResponseDate);
             }
           } else {
             logger.log(`📌 [${productId}] 수집 실패`);
@@ -357,9 +359,9 @@ class Scraper {
         logger.log(`🔍 브랜드 정보 수집 중: ${brand}`);
         // const hrefs = [];
 
-        const hrefs = findNonScrapedProductByDate(BASE_DATE).map(
-          (id) => `https://kream.co.kr/products/${id}`
-        );
+        const hrefs = findNonScrapedProductByDate(BASE_DATE)
+          .map((id) => `https://kream.co.kr/products/${id}`)
+          .slice(0, 2);
 
         /** goto target and append hrefs */
         // try {
@@ -485,7 +487,11 @@ class Scraper {
 
                 const closeBtn = await page.$("a.btn_layer_close");
                 // scroll to bottom
-                for (let i = 0; i < SCROLL_COUNT + scroll_count_offset; i++) {
+                for (
+                  let i = 0;
+                  i < SCROLL_COUNT + scroll_count_offset - retry;
+                  i++
+                ) {
                   if (!(productId in this.timeSeriesData)) {
                     weightedDelay += API_CALL_DELAY * retry;
                     logger.error(
@@ -494,6 +500,11 @@ class Scraper {
                       }] 상품 정보 수집 실패: [${brand}]${
                         newProductMetaData.name
                       }(${newProductMetaData.product_id})`
+                    );
+                    logger.error(
+                      `${productId} not found in timeSeriesData: ${Object.keys(
+                        this.timeSeriesData
+                      )}`
                     );
                     if (closeBtn && closeBtn.click) {
                       await closeBtn.click();
@@ -531,17 +542,19 @@ class Scraper {
                 successScrape = true;
               };
 
-              for (let i = 0; i < retryCount; i++) {
-                await scrollProductHistory(i + 1);
+              while (moreScroll) {
+                for (let i = 0; i < retryCount; i++) {
+                  await scrollProductHistory(i + 1);
 
-                if (successScrape) {
-                  break;
+                  if (successScrape) {
+                    break;
+                  }
+
+                  await sleep(weightedDelay, logger, "retry delay");
                 }
-
-                await sleep(weightedDelay, logger, "retry delay");
               }
 
-              if (successScrape) {
+              if (successScrape && !moreScroll) {
                 // saveData(this.timeSeriesData[productId], productId);
 
                 logger.log(
@@ -552,7 +565,7 @@ class Scraper {
                   }(${newProductMetaData.product_id})`
                 );
                 logger.log(
-                  `📦 [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id}): $${this.timeSeriesData[productId].length} 건`
+                  `📦 [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id}): ${this.timeSeriesData[productId].length} 건`
                 );
               } else {
                 logger.error(
@@ -561,6 +574,9 @@ class Scraper {
                   }] 상품 정보 수집 실패: [${brand}]${
                     newProductMetaData.name
                   }(${newProductMetaData.product_id})`
+                );
+                logger.error(
+                  `successScrape is ${successScrape}, moreScroll is ${moreScroll}`
                 );
               }
               const scrapeEndTime = new Date().getTime();
