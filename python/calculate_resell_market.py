@@ -1,6 +1,8 @@
 import pandas as pd
 import os
 from resell_market_index import calculate_resell_market_index
+from data_processing import save_interpolation_log
+
 
 # 데이터 경로 설정 (javascript/output 폴더에서 CSV 파일 로드)
 DATA_PATH = os.path.join('..', 'javascript', 'output')
@@ -37,3 +39,6 @@ market_resell_index = calculate_resell_market_index(transactions, product_meta, 
 # 최종 결과 출력 (이 부분이 없으면 화면에 아무것도 안 보임)
 print("\n리셀 시장 지수 (Market Resell Index):")
 print(market_resell_index)
+
+# 보간법 사용 내역 저장
+save_interpolation_log()
