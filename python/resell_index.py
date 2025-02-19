@@ -2,7 +2,7 @@
 import pandas as pd
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume, save_interpolation_log, interpolation_logs
 
-def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date):
+def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, log_csv_path="interpolation_logs.csv"):
     """
     특정 상품 ID에 대해 거래량 가중치를 적용한 리셀 지수를 계산하는 함수
     :param transactions: 전체 거래 데이터 (DataFrame)
@@ -43,8 +43,9 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     # 발매가가 NaN이거나 0 이면 보정값 대체
     if pd.isna(baseline_price) or baseline_price == 0:
         #baseline_price = get_adjusted_baseline_price(product_resell_index, baseline_date, product_id)
-        interpolation_logs.append({"product_id": product_id, "method": "adjusted_price", "date": baseline_date})
-
+        #interpolation_logs.append({"product_id": product_id, "method": "adjusted_price", "date": baseline_date})
+        interpolation_logs.append({"product_id": product_id, "date_created": baseline_date, "column": "original_price", "method": "adjusted_price", "original_value": None, "new_value": baseline_price})
+    
     if "total_volume" not in product_resell_index.columns or product_resell_index.empty:
         return pd.DataFrame(columns=["date_created", "avg_price", "total_volume", "resell_index"])
 
@@ -73,15 +74,27 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     '''
     # NaN 및 Inf 값 처리
     product_resell_index["resell_index"] = product_resell_index["resell_index"].replace([float("inf"), -float("inf")], None)
-    product_resell_index["resell_index"] = product_resell_index["resell_index"].ffill().bfill().interpolate(method="linear")
+    # 📌 보간 전 데이터 백업
+    original_resell_index = product_resell_index["resell_index"].copy()
     
+    product_resell_index["resell_index"] = product_resell_index["resell_index"].ffill().bfill().interpolate(method="linear")
+    '''# 📌 보간법 적용 여부 체크
+    if not original_resell_index.equals(product_resell_index["resell_index"]):
+        interpolation_logs.append({"product_id": product_id, "method": "interpolation", "date": baseline_date})
+    '''
+    '''
     # 보간법 적용 여부 확인
     if product_resell_index["resell_index"].isna().sum() > 0:
         interpolation_logs.append({"product_id": product_id, "method": "interpolation", "date": baseline_date})
-    
+    '''
+    # 🔹 보간 후 변경된 값 체크하여 로그 저장
+    for date, original_value, new_value in zip(product_resell_index["date_created"], original_resell_index, product_resell_index["resell_index"]):
+        if pd.notna(original_value) and original_value != new_value:
+            interpolation_logs.append({"product_id": product_id, "date_created": date, "column": "resell_index", "method": "interpolation", "original_value": original_value, "new_value": new_value})
 
     # 보간법 사용 로그 저장 (보간법 사용 내역이 있을 경우에만 저장)
     if interpolation_logs:
         save_interpolation_log()
+        pd.DataFrame(interpolation_logs).to_csv(log_csv_path, index=False)
 
     return product_resell_index

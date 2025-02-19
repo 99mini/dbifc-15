@@ -33,9 +33,9 @@ def get_adjusted_baseline_price(product_data, baseline_date):
     if closest_date is not None:
         return product_data[product_data["date_created"].dt.date == closest_date]["avg_price"].mean()
     
-    # 그래도 값이 없으면 보간법 적용
     if product_data["avg_price"].isna().all():
-        return None  # 모든 데이터가 NaN인 경우 None 반환
+        return product_data["avg_price"].fillna(method="bfill").fillna(method="ffill").interpolate(method="linear").mean()
+        #return None  # 모든 데이터가 NaN인 경우 None 반환
 
     # 그래도 값이 없으면 보간법 적용
     return product_data["avg_price"].interpolate(method="linear").fillna(method="ffill").fillna(method="bfill").mean()
@@ -58,20 +58,7 @@ def get_adjusted_baseline_volume(product_data, baseline_date):
     # 보간법 적용 (앞/뒤 데이터 활용)
     return product_data["total_volume"].interpolate(method="linear").fillna(method="ffill").fillna(method="bfill").mean()
 
-'''
-def save_interpolation_log():
-    """
-    보간법 사용 내역을 CSV 파일로 저장
-    """
-    if interpolation_logs:
-        #log_path = os.path.join("output", "interpolation_log.csv")  #명확한 경로 설정
-        df = pd.DataFrame(interpolation_logs)
-        os.makedirs("output", exist_ok=True)  # 폴더 없으면 생성
-        df.to_csv(log_file_path, index=False)
-        print(f"보간법 사용 내역이 {log_file_path} 파일에 저장되었습니다!")
-    else:
-        print("보간법 사용 내역이 없습니다.")
-    '''
+
 interpolation_logs = []
 
 # 로그 파일 저장 경로 설정 (python/output 폴더에 저장)

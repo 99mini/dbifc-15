@@ -63,6 +63,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
         resell_indices.append(product_index)
 
     if not resell_indices:
+        print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
         return pd.DataFrame(columns=["date_created", "market_resell_index"])
 
     market_data = pd.concat(resell_indices, ignore_index=True)
