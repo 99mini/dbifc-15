@@ -4,7 +4,6 @@ import pandas as pd
 from datetime import datetime, timedelta
 #timedelta는 datetime 모듈에서 제공하는 클래스, 날짜와 시간 간의 차이를 표현하는 데 사용,특정 날짜에서 며칠을 더하거나 빼는 계산을 할 때 유용
 
-
 #기준일(baseline_date)에 거래가 없으면 하루씩 앞뒤로 이동하여 가장 가까운 거래일의 데이터를 사용
 def get_closest_trading_day(product_data, baseline_date):
     baseline_date = datetime.strptime(baseline_date, "%Y-%m-%d")
