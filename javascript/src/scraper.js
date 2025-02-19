@@ -360,8 +360,9 @@ class Scraper {
         // const hrefs = [];
 
         const hrefs = findNonScrapedProductByDate(BASE_DATE)
-          .map((id) => `https://kream.co.kr/products/${id}`)
-          // .slice(0, 2);
+          .filter((id) => id !== "381854")
+          .map((id) => `https://kream.co.kr/products/${id}`);
+        // .slice(0, 2);
 
         /** goto target and append hrefs */
         // try {
