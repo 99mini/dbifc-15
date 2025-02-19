@@ -52,8 +52,12 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
     for product_id in product_ids:
         product_index = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date)
 
-        if product_index.empty:
-            continue  # 거래 데이터가 없는 경우 스킵
+        '''if product_index.empty:
+            continue  # 거래 데이터가 없는 경우 스킵'''
+        # 🔹 빈 데이터 또는 resell_index 누락 시 스킵
+        if product_index.empty or "resell_index" not in product_index.columns:
+            print(f"⚠️ 상품 ID {product_id}의 리셀 지수 데이터 없음, 스킵")
+            continue
 
         product_index["product_id"] = product_id
         resell_indices.append(product_index)
