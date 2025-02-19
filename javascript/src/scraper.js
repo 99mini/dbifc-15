@@ -152,7 +152,7 @@ class Scraper {
     return Scraper._instance;
   }
 
-  report(scrapeTimerList) {
+  report(scrapeTimerList, startTime) {
     logger.info(`🎉 크롤링 완료`);
     logger.info(`📦 총 브랜드: ${BRAND.length} 개`);
     logger.info(`📦 총 상품: ${this.productMetaData.length} 개`);
@@ -460,29 +460,29 @@ class Scraper {
                 ])
               : undefined;
 
-            if (
-              lastMetaInfo &&
-              lastMetaInfo.length === 1 &&
-              lastMetaInfo[0].product_id === productId
-            ) {
-              logger.log(
-                `📌 [${hrefCounter + 1}/${
-                  hrefsLimited.length
-                }] 이미 수집된 상품 정보입니다`
-              );
+            // if (
+            //   lastMetaInfo &&
+            //   lastMetaInfo.length === 1 &&
+            //   lastMetaInfo[0].product_id === productId
+            // ) {
+            //   logger.log(
+            //     `📌 [${hrefCounter + 1}/${
+            //       hrefsLimited.length
+            //     }] 이미 수집된 상품 정보입니다`
+            //   );
 
-              scroll_count_offset = Math.floor(getLineCount(productId) / 50);
-            } else {
-              logger.log(
-                `🔍 [${hrefCounter + 1}/${
-                  hrefsLimited.length
-                }] 상품 정보 수집 시작: [${brand}]${newProductMetaData.name}(${
-                  newProductMetaData.product_id
-                })`
-              );
+            //   scroll_count_offset = Math.floor(getLineCount(productId) / 50);
+            // } else {
+            //   logger.log(
+            //     `🔍 [${hrefCounter + 1}/${
+            //       hrefsLimited.length
+            //     }] 상품 정보 수집 시작: [${brand}]${newProductMetaData.name}(${
+            //       newProductMetaData.product_id
+            //     })`
+            //   );
 
-              // appendMetaInfo(newProductMetaData, "product_meta_data2.csv");
-            }
+            //   appendMetaInfo(newProductMetaData, "product_meta_data2.csv");
+            // }
 
             this.productMetaData.push({
               product_id: productId,
@@ -602,7 +602,7 @@ class Scraper {
 
       await browser.close();
 
-      this.report(scrapeTimerList);
+      this.report(scrapeTimerList, startTime);
     }
   }
 
