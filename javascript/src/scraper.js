@@ -492,6 +492,12 @@ class Scraper {
                   i < SCROLL_COUNT + scroll_count_offset - retry;
                   i++
                 ) {
+                  if (!moreScroll) {
+                    logger.log(
+                      `🔍 상품 채결 내역 수집 종료: [${brand}]${newProductMetaData.name}(${newProductMetaData.product_id})`
+                    );
+                    break;
+                  }
                   if (!(productId in this.timeSeriesData)) {
                     weightedDelay += API_CALL_DELAY * retry;
                     logger.error(
@@ -554,7 +560,9 @@ class Scraper {
                 }
               }
 
-              if (successScrape && !moreScroll) {
+              moreScroll = true;
+
+              if (successScrape) {
                 // saveData(this.timeSeriesData[productId], productId);
 
                 logger.log(
@@ -575,9 +583,7 @@ class Scraper {
                     newProductMetaData.name
                   }(${newProductMetaData.product_id})`
                 );
-                logger.error(
-                  `successScrape is ${successScrape}, moreScroll is ${moreScroll}`
-                );
+                logger.error(`successScrape is ${successScrape}`);
               }
               const scrapeEndTime = new Date().getTime();
               logger.log(`🕒 소요 시간: ${scrapeEndTime - scrapeStartTime}ms`);
