@@ -5,10 +5,10 @@ import {
   findNonScrapedProductByMetaData,
 } from "./utils.js";
 
-const BASE_DATE = "2025-01-01T00:00:00Z";
+const BASE_DATE = "2025-01-31T00:00:00Z";
 
 async function main() {
-  await scraper.run();
+  // await scraper.run();
   // await scraper.test();
   removeDuplicatesAndOverWrite();
 
@@ -17,7 +17,9 @@ async function main() {
   );
   console.log("nonScrapedByMetaData", nonScrapedByMetaData);
 
-  const nonScrapedByDate = findNonScrapedProductByDate(BASE_DATE);
+  const nonScrapedByDate = findNonScrapedProductByDate(BASE_DATE).filter(
+    (id) => !["381854", "414409", "417822", "418892", "429528"].includes(id)
+  );
   console.log("nonScrapedByDate", nonScrapedByDate, nonScrapedByDate.length);
 
   process.exit();

@@ -35,7 +35,7 @@ dotenv.config();
 const ID = process.env.ID;
 const PW = process.env.PW;
 
-const BASE_DATE = "2025-01-01T00:00:00Z";
+const BASE_DATE = "2025-01-31T00:00:00Z";
 
 // MARK: constants
 /**
@@ -360,12 +360,15 @@ class Scraper {
         // const hrefs = [];
 
         const hrefs = findNonScrapedProductByDate(BASE_DATE)
-          .map((id) => `https://kream.co.kr/products/${id}`)
-          .slice(0, 2);
+          .filter(
+            (id) =>
+              !["381854", "414409", "417822", "418892", "429528"].includes(id)
+          )
+          .map((id) => `https://kream.co.kr/products/${id}`);
+        // .slice(0, 2);
 
         /** goto target and append hrefs */
         // try {
-        //   await page.goto(target);
 
         //   await page.waitForSelector(".product_card");
 

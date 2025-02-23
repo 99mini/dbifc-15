@@ -360,5 +360,6 @@ export function findNonScrapedProductByDate(baseDate) {
 
   const ret = fileIds.filter((id) => isBiggerThanBaseDate(id, baseDate));
 
+  console.log("valid data count:", fileIds.length - ret.length);
   return ret;
 }
