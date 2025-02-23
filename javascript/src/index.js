@@ -17,9 +17,7 @@ async function main() {
   );
   console.log("nonScrapedByMetaData", nonScrapedByMetaData);
 
-  const nonScrapedByDate = findNonScrapedProductByDate(BASE_DATE).filter(
-    (id) => !["381854", "414409", "417822", "418892", "429528"].includes(id)
-  );
+  const nonScrapedByDate = findNonScrapedProductByDate(BASE_DATE);
   console.log("nonScrapedByDate", nonScrapedByDate, nonScrapedByDate.length);
 
   process.exit();
