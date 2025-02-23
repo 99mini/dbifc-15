@@ -360,13 +360,15 @@ class Scraper {
         // const hrefs = [];
 
         const hrefs = findNonScrapedProductByDate(BASE_DATE)
-          .filter((id) => id !== "381854")
+          .filter(
+            (id) =>
+              !["381854", "414409", "417822", "418892", "429528"].includes(id)
+          )
           .map((id) => `https://kream.co.kr/products/${id}`);
         // .slice(0, 2);
 
         /** goto target and append hrefs */
         // try {
-        //   await page.goto(target);
 
         //   await page.waitForSelector(".product_card");
 
