@@ -58,7 +58,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         product_data["date_created"] = pd.to_datetime(product_data["date_created"])
         product_data = product_data.set_index("date_created")
         # 4시간 단위로 그룹화하여 평균 가격과 거래 건수(거래량)를 계산
-        grp = product_data.resample("4H").agg(
+        grp = product_data.resample("4h").agg(
             avg_price=("price", "mean"),
             total_volume=("price", "count")
         ).reset_index()
@@ -111,7 +111,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         return 0
 
     results = []
-    grouped = market_data.resample("4H")
+    grouped = market_data.resample("4h")
     for interval, group in grouped:
         if not group.empty:
             idx_value = compute_index_from_data(group)

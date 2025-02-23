@@ -6,8 +6,6 @@ from datetime import datetime, timedelta
 
 #기준일(baseline_date)에 거래가 없으면 하루씩 앞뒤로 이동하여 가장 가까운 거래일의 데이터를 사용
 def get_closest_trading_day(product_data, baseline_date):
-    baseline_date = datetime.strptime(baseline_date, "%Y-%m-%d")
-    
     # 날짜 정렬
     available_dates = sorted(product_data["date_created"].dt.date.unique())
 
