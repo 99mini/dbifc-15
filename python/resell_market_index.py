@@ -35,7 +35,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
         market_resell_index=("resell_index", "mean")
     ).reset_index().rename(columns={"date_only": "date_created"})
 
-    return resell_market_index
+    return [resell_market_index, market_data]
 
 def calculate_resell_market_index_4h(transactions, product_meta, product_ids, baseline_date):
     """

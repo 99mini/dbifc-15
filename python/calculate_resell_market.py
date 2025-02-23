@@ -2,7 +2,7 @@ import pandas as pd
 import os
 from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
-
+from visualization import plot_resell_index
 
 # 데이터 경로 설정 (javascript/output 폴더에서 CSV 파일 로드)
 DATA_PATH = os.path.join('..', 'javascript', 'output')
@@ -35,15 +35,25 @@ transactions = transactions.merge(product_meta[['product_id', 'original_price']]
 # 리셀 시장 지수 계산 (이 부분이 누락되지 않았는지 확인)
 baseline_date = "2025-02-01T00:00:00Z"
 # 24시간 간격 리셀 시장 지수 계산
-market_resell_index_24h = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
+[market_resell_index_24h, market_data] = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
 print("\n리셀 시장 지수 (24시간 간격):")
 print(market_resell_index_24h)
 
+plot_resell_index(market_resell_index_24h, title="Resell Market Index (24h)", save=True)
+
+filtered_data = market_data[market_data['date_created'] == '2025-02-01']
+sorted_data = filtered_data.sort_values(by='total_volume', ascending=False).head(50)
+sorted_product_ids = sorted_data['product_id'].tolist()
+
+# 지수에 사용될 상품 목록 출력
+print(sorted_product_ids)
+
 # 4시간 간격 리셀 시장 지수 계산
-market_resell_index_4h = calculate_resell_market_index_4h(transactions, product_meta, product_ids, baseline_date)
+market_resell_index_4h = calculate_resell_market_index_4h(transactions, product_meta, sorted_product_ids, baseline_date)
 print("\n리셀 시장 지수 (4시간 간격):")
 print(market_resell_index_4h)
 
+plot_resell_index(market_resell_index_4h, title="Resell Market Index (4h)", save=True)
 
 # 보간법 사용 내역 저장
 save_interpolation_log()
