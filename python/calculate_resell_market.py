@@ -33,7 +33,7 @@ transactions = load_transaction_data()
 transactions = transactions.merge(product_meta[['product_id', 'original_price']], on="product_id", how="left")
 
 # 리셀 시장 지수 계산 (이 부분이 누락되지 않았는지 확인)
-baseline_date = "2025-02-01T00:00:00Z"
+baseline_date = "2025-01-31T00:00:00Z"
 # 24시간 간격 리셀 시장 지수 계산
 [market_resell_index_24h, market_data] = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
 print("\n리셀 시장 지수 (24시간 간격):")
@@ -41,7 +41,7 @@ print(market_resell_index_24h)
 
 plot_resell_index(market_resell_index_24h, title="Resell Market Index (24h)", save=True)
 
-filtered_data = market_data[market_data['date_created'] == '2025-02-01']
+filtered_data = market_data[market_data['date_created'] == '2025-01-31']
 sorted_data = filtered_data.sort_values(by='total_volume', ascending=False).head(50)
 sorted_product_ids = sorted_data['product_id'].tolist()
 
