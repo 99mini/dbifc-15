@@ -1,3 +1,4 @@
+from datetime import datetime
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -12,7 +13,7 @@ def plot_resell_index(resell_index_data, title="Resell Market Index", save=False
     plt.grid(True)
 
     if save:
-        plt.savefig(f'output/{title}.png', dpi=300, bbox_inches='tight')
+        plt.savefig(f'output/{title}_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.png', dpi=300, bbox_inches='tight')
         plt.close()
 
     plt.show()
