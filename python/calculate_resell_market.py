@@ -1,6 +1,6 @@
 import pandas as pd
 import os
-from resell_market_index import calculate_resell_market_index
+from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
 
 
@@ -34,11 +34,16 @@ transactions = transactions.merge(product_meta[['product_id', 'original_price']]
 
 # 리셀 시장 지수 계산 (이 부분이 누락되지 않았는지 확인)
 baseline_date = "2025-02-01"
-market_resell_index = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
+# 24시간 간격 리셀 시장 지수 계산
+market_resell_index_24h = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
+print("\n리셀 시장 지수 (24시간 간격):")
+print(market_resell_index_24h)
 
-# 최종 결과 출력 (이 부분이 없으면 화면에 아무것도 안 보임)
-print("\n리셀 시장 지수 (Market Resell Index):")
-print(market_resell_index)
+# 4시간 간격 리셀 시장 지수 계산
+market_resell_index_4h = calculate_resell_market_index_4h(transactions, product_meta, product_ids, baseline_date)
+print("\n리셀 시장 지수 (4시간 간격):")
+print(market_resell_index_4h)
+
 
 # 보간법 사용 내역 저장
 save_interpolation_log()

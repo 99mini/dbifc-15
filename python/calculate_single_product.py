@@ -38,7 +38,7 @@ transactions = load_transaction_data("36.csv")
 
 # 특정 상품 ID 및 기준일 설정
 product_id = 36
-baseline_date = "2025-02-01"
+baseline_date = "2025-02-01T00:00:00Z"
 
 # 리셀 지수 계산
 product_resell_data = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date)
