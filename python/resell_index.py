@@ -2,8 +2,11 @@
 import pandas as pd
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume, save_interpolation_log, interpolation_logs
 
-def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, log_csv_path="interpolation_logs.csv"):
+def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha = 0.3 , log_csv_path="interpolation_logs.csv"):
     """
+    \(\alpha\) (0~1) 값을 조정하여 거래량 vs 가격 프리미엄 비중 조절
+    예: \(\alpha = 0.7\) → 거래량을 70%, 가격 프리미엄을 30% 반영
+
     특정 상품 ID에 대해 거래량 가중치를 적용한 리셀 지수를 계산하는 함수
     :param transactions: 전체 거래 데이터 (DataFrame)
     :param product_id: 특정 상품의 ID (int)
@@ -62,25 +65,20 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     baseline_volume = product_resell_index["total_volume"].iloc[0] if not product_resell_index["total_volume"].isna().all() \
         else get_adjusted_baseline_volume(product_resell_index, baseline_date, product_id)
     
-    '''
-    # 기준일 거래량 설정 (거래량이 없으면 1로 설정)
-    baseline_volume = product_resell_index["total_volume"].iloc[0] if not product_resell_index.empty else 1
-    '''
+    # 가격 프리미엄 계산
+    product_resell_index["price_premium"] = product_resell_index["avg_price"] - baseline_price
+    #비율정규화
+    product_resell_index["normalized_premium"] = product_resell_index["price_pemium"] / baseline_price
+
+
+    # 거래량 & 가격 프리미엄 가중 평균
+    product_resell_index["adjusted_weight"] = alpha * product_resell_index["total_volume"] + (1 - alpha) * product_resell_index["price_premium"]
 
     # 지수 계산
     product_resell_index["resell_index"] = (
-        (product_resell_index["avg_price"] * product_resell_index["total_volume"]) /
+        (product_resell_index["avg_price"] * product_resell_index["adjusted_weight"]) /
         (baseline_price * baseline_volume) * 100
     )
-    '''
-    # 무한대 값 처리
-    product_resell_index["resell_index"].replace([float("inf"), -float("inf")],  inplace=True)
-    # NaN 값 보간
-    # 보간 적용 (새로운 pandas 3.0 방식)
-    product_resell_index["resell_index"] = product_resell_index["resell_index"].ffill()
-    product_resell_index["resell_index"] = product_resell_index["resell_index"].bfill()
-    product_resell_index["resell_index"] = product_resell_index["resell_index"].interpolate(method="linear")
-    '''
 
 
     # NaN 및 Inf 값 처리
