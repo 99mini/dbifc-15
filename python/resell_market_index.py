@@ -3,6 +3,7 @@ import pandas as pd
 from resell_index import calculate_product_resell_index
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume
 from resell_utils import compute_resell_index, normalize_index
+from visualization import plot_single_resell_index
 
 def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date):
     """
@@ -21,14 +22,19 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
             continue
 
         product_index["product_id"] = product_id
+        product_index["name"] = product_meta[product_meta["product_id"] == product_id]["name"].values[0]
+        
         resell_indices.append(product_index)
+
+        # 단일 상품 인덱스 저장
+        plot_single_resell_index(product_index, product_id, "resell_index", save=True)
 
     if not resell_indices:
         print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
         return pd.DataFrame(columns=["date_created", "market_resell_index"])
 
     market_data = pd.concat(resell_indices, ignore_index=True)
-     # 24시간 단위로 그룹화 (날짜만 사용)
+    # 24시간 단위로 그룹화 (날짜만 사용)
     market_data["date_created"] = pd.to_datetime(market_data["date_created"])
     market_data["date_only"] = market_data["date_created"].dt.date
 

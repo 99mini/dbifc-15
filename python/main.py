@@ -2,15 +2,15 @@ import pandas as pd
 import os
 from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
-from visualization import plot_resell_index, plot_single_product, plot_premium_with_resell_index
+from visualization import plot_resell_index, plot_premium_with_resell_index
 from calculate_resell_market import load_transaction_data
 import random
 
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join('..', 'javascript', 'output')
 
-baseline_date = "2025-01-31T00:00:00Z"
-
+baseline_date   = "2025-01-31T00:00:00Z"
+endline_date    = "2025-02-14T00:00:00Z"
 
 def main():
     # product_meta_data.csv에서 상품 ID 리스트 불러오기
@@ -24,6 +24,10 @@ def main():
     # ✅ 거래 데이터와 product_meta 병합 (발매가 추가)
     #transactions["date_created"] = pd.to_datetime(transactions["date_created"])
     transactions = transactions.merge(product_meta[['product_id', 'original_price']], on="product_id", how="left")
+
+    # 기준일 ~ endline_date 이간 데이터만 사용
+    transactions = transactions[transactions["date_created"] >= baseline_date]
+    transactions = transactions[transactions["date_created"] < endline_date]
 
     # 24시간 간격 리셀 시장 지수 계산
     [market_resell_index_24h, market_data] = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
@@ -68,7 +72,6 @@ def main():
     # 지수에 편입된 상품들
     # for product_id in sorted_product_ids:
     #     data = pd.read_csv(f"{DATA_PATH}/{product_id}.csv")
-    #     plot_single_product(data, product_id, "transfered", save=True)
 
 
     # sample 갯수
@@ -89,7 +92,6 @@ def main():
         data = data[data['date_created'] >= baseline_date].copy()
 
         premium_data.append(data)
-        # plot_single_product(data, product_id, "premium")
 
     # 리셀 시장 지수와 상품별 리셀 가격 타임시리즈 그래프 그리기
     plot_premium_with_resell_index(market_resell_index_4h, premium_data, output_dir="merged", title="Resell & Premium (4h)", save=True)

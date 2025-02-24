@@ -21,11 +21,12 @@ def plot_resell_index(resell_index_data, output_dir, title="Resell Market Index"
 
     plt.close()
 
-def plot_single_product(data, product_id, output_dir, title="resell", save=False):
+def plot_single_resell_index(data, product_id, output_dir, title="resell", save=False):
     plt.figure(figsize=(10, 5))
     plt.plot(
         data["date_created"], 
-        data["price"], 
+        data["resell_index"], 
+        marker='o', 
         linestyle='-', 
         color='b', 
         label=f'{data["name"][0]}'
