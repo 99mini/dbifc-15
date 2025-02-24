@@ -1,10 +1,10 @@
-import datetime
 import pandas as pd
 import os
 from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
-from visualization import plot_resell_index, plot_single_product
+from visualization import plot_resell_index, plot_single_product, plot_premium_with_resell_index
 from calculate_resell_market import load_transaction_data
+import random
 
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join('..', 'javascript', 'output')
@@ -70,13 +70,30 @@ def main():
     #     data = pd.read_csv(f"{DATA_PATH}/{product_id}.csv")
     #     plot_single_product(data, product_id, "transfered", save=True)
 
-    # 지수에 편입되지 않은 상품들
-    for product_id in non_transfer_product_ids:
-        data = pd.read_csv(f"{DATA_PATH}/{product_id}.csv")
-    
-        plot_single_product(data, product_id, output_dir="non_transfered", save=True)
 
-        break
+    # sample 갯수
+    sample_size = 1
+    premium_data = []
+    # 지수에 편입되지 않은 상품들
+    for product_id in random.sample(non_transfer_product_ids, sample_size):
+        data = pd.read_csv(f"{DATA_PATH}/{product_id}.csv")
+
+        original_price = product_meta[product_meta["product_id"] == product_id]["original_price"].values[0]
+        data["normalized_premium"] = (data["price"] - original_price) / original_price * 100
+
+        data["name"] = product_meta[product_meta["product_id"] == product_id]["name"].values[0]
+
+        data['date_created'] = pd.to_datetime(data['date_created'])
+
+        # baseline_date 이후 데이터만 선택
+        data = data[data['date_created'] >= baseline_date].copy()
+
+        premium_data.append(data)
+        # plot_single_product(data, product_id, "premium")
+
+    # 리셀 시장 지수와 상품별 리셀 가격 타임시리즈 그래프 그리기
+    plot_premium_with_resell_index(market_resell_index_4h, premium_data, output_dir="merged", title="Resell & Premium (4h)", save=True)
+    plot_premium_with_resell_index(market_resell_index_24h, premium_data, output_dir="merged", title="Resell & Premium (24h)", save=True)
 
 if __name__ == "__main__":
 	main()

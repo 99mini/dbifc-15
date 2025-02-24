@@ -74,7 +74,7 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     product_resell_index["price_premium"] = product_resell_index["avg_price"] - baseline_price
     #비율정규화
     product_resell_index["normalized_premium"] = product_resell_index["price_premium"] / baseline_price
-    
+
 
     # 거래량 & 가격 프리미엄 가중 평균
     product_resell_index["adjusted_weight"] = alpha * product_resell_index["total_volume"] + (1 - alpha) * product_resell_index["normalized_premium"]
