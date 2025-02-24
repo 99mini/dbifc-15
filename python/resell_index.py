@@ -1,6 +1,7 @@
 #개별 상품 리셀 지수 계산 함수 정의
 import pandas as pd
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume, save_interpolation_log, interpolation_logs
+from resell_utils import compute_resell_index, normalize_index
 
 def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha = 0.1 , log_csv_path="interpolation_logs.csv"):
     """
@@ -28,7 +29,7 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     product_resell_index = product_data.groupby(product_data["date_created"].dt.date).agg(
         avg_price=("price", "mean"),
         total_volume=("price", "count")  # 거래량을 건수로 계산
-    ).reset_index()
+    ).reset_index().rename(columns={"index:": "date_created"})
 
     # 기준 시점 가격 및 거래량 설정
     #baseline_price = product_resell_index["original_price"].iloc[0]
@@ -40,8 +41,8 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
         return pd.DataFrame(columns=["date_created", "avg_price", "total_volume", "resell_index"])
     '''
     #try-except 대신 get()을 활용하여 product_meta에서 가격 가져오기
-    baseline_price = product_meta.loc[product_meta["product_id"] == product_id, "original_price"].values
-    baseline_price = baseline_price[0] if len(baseline_price) > 0 else get_adjusted_baseline_price(product_resell_index, baseline_date, product_id)
+    baseline_price_arr = product_meta.loc[product_meta["product_id"] == product_id, "original_price"].values
+    baseline_price = baseline_price_arr[0] if len(baseline_price_arr) > 0 else get_adjusted_baseline_price(product_resell_index, baseline_date, product_id)
     
     # 발매가가 NaN이거나 0 이면 보정값 대체
     '''if pd.isna(baseline_price) or baseline_price == 0:
@@ -58,13 +59,17 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
             "original_value": None,
             "new_value": baseline_price
         })
+
+    '''if product_resell_index.empty or "total_volume" not in product_resell_index.columns:
+        return pd.DataFrame(columns=["date_created", "avg_price", "total_volume", "resell_index"])
+ '''
     if "total_volume" not in product_resell_index.columns or product_resell_index.empty:
         return pd.DataFrame(columns=["date_created", "avg_price", "total_volume", "resell_index"])
 
     # 기준 거래량 설정
     baseline_volume = product_resell_index["total_volume"].iloc[0] if not product_resell_index["total_volume"].isna().all() \
         else get_adjusted_baseline_volume(product_resell_index, baseline_date, product_id)
-    
+    '''
     # 가격 프리미엄 계산
     product_resell_index["price_premium"] = product_resell_index["avg_price"] - baseline_price
     #비율정규화
@@ -74,12 +79,16 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     # 거래량 & 가격 프리미엄 가중 평균
     product_resell_index["adjusted_weight"] = alpha * product_resell_index["total_volume"] + (1 - alpha) * product_resell_index["normalized_premium"]
 
+
     # 지수 계산
     product_resell_index["resell_index"] = (
         (product_resell_index["avg_price"] * product_resell_index["adjusted_weight"]) /
         (baseline_price * baseline_volume) * 100
+    )'''
+    # 각 행마다 resell index 계산 (공통 함수 사용)
+    product_resell_index["resell_index"] = product_resell_index.apply(
+        lambda row: compute_resell_index(row["avg_price"], row["total_volume"], baseline_price, baseline_volume, alpha), axis=1
     )
-    
 
     # NaN 및 Inf 값 처리
     product_resell_index["resell_index"] = product_resell_index["resell_index"].replace([float("inf"), -float("inf")], None)
@@ -109,13 +118,10 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
         save_interpolation_log()
         pd.DataFrame(interpolation_logs).to_csv(log_csv_path, index=False)
 
-     # ★★ 기준일(예: 2025-01-31)이 존재하면 해당 지수를 100으로 정규화 ★★
+    # 날짜 컬럼을 datetime.date로 변환 후, 기준일을 100으로 정규화
     baseline_date_obj = pd.to_datetime(baseline_date).date()
-    if baseline_date_obj in product_resell_index["date_created"].values:
-        base_value = product_resell_index.loc[product_resell_index["date_created"] == baseline_date_obj, "resell_index"].iloc[0]
-    else:
-        base_value = product_resell_index["resell_index"].iloc[0]
-    product_resell_index["resell_index"] = product_resell_index["resell_index"] / base_value * 100
+    product_resell_index["date_created"] = pd.to_datetime(product_resell_index["date_created"]).dt.date
+    product_resell_index = normalize_index(product_resell_index, "resell_index", baseline_date_obj)
 
 
     return product_resell_index

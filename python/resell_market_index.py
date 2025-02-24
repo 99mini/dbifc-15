@@ -2,6 +2,7 @@
 import pandas as pd
 from resell_index import calculate_product_resell_index
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume
+from resell_utils import compute_resell_index, normalize_index
 
 def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date):
     """
@@ -72,7 +73,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
 
         # 기준 가격은 product_meta에서 가져오거나, 없으면 보정 함수 사용
         baseline_price_arr = product_meta.loc[product_meta["product_id"] == product_id, "original_price"].values
-        baseline_price = baseline_price_arr[0] if len(baseline_price_arr) > 0 else None
+        baseline_price = baseline_price_arr[0] if len(baseline_price_arr) > 0 else get_adjusted_baseline_price(grp, baseline_date)
         if baseline_price is None or pd.isna(baseline_price) or baseline_price == 0:
             # 필요 시 보정 함수 호출
             baseline_price = get_adjusted_baseline_price(grp, baseline_date)
@@ -80,7 +81,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         # 기준 거래량: 첫 구간의 거래량 또는 보정 값
         baseline_volume = grp["total_volume"].iloc[0] if not grp["total_volume"].isna().all() else get_adjusted_baseline_volume(grp, baseline_date)
 
-
+        '''
         # resell_index.py와 동일한 계산 방식 적용
         grp["price_premium"] = grp["avg_price"] - baseline_price
         grp["normalized_premium"] = grp["price_premium"] / baseline_price
@@ -93,7 +94,18 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         # 결측치나 Inf 값에 대해서는 전/후 값 보간 혹은 fallback 처리
         grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
         grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")
+        '''
+         # 각 4시간 구간별로 resell index 계산 (공통 함수 사용)
+        grp["resell_index"] = grp.apply(
+            lambda row: compute_resell_index(row["avg_price"], row["total_volume"], baseline_price, baseline_volume, alpha), axis=1
+        )
+        grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
+        grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")
         
+        # 첫 4시간 구간을 기준으로 정규화
+        grp = normalize_index(grp, "resell_index", grp["date_created"].iloc[0])
+        
+
         grp["product_id"] = product_id
         resell_indices.append(grp)
 
@@ -105,26 +117,13 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
     market_data = market_data.sort_values("date_created")
     market_data = market_data.set_index("date_created")
 
-    # 4시간 구간별 인덱스 계산:
-    # 각 4시간 구간에 데이터가 있으면 해당 구간의 resell_index 평균을 사용하고,
-    # 데이터가 없는 구간은 fallback 로직(예시: 0 또는 별도 계산 값)을 할당합니다.
-    def compute_index_from_data(data_subset):
-        return data_subset["resell_index"].mean()
-
-    def compute_index_with_fallback(interval):
-        # 예시: fallback으로 data_processing의 보정 함수 등을 호출할 수 있음
-        # 실제 구현에서는 여러 함수를 순차적으로 적용해 결과가 나올 때까지 처리하도록 작성합니다.
-        # 여기서는 간단히 0을 반환하는 예시입니다.
-        return 0
-
+    # 4시간 단위로 그룹화하여 시장 지수 산출 (평균값)
     results = []
     grouped = market_data.resample("4h")
     for interval, group in grouped:
-        if not group.empty:
-            idx_value = compute_index_from_data(group)
-        else:
-            idx_value = compute_index_with_fallback(interval)
+        idx_value = group["resell_index"].mean() if not group.empty else 0
         results.append({"date_created": interval, "market_resell_index": idx_value})
+
 
     return pd.DataFrame(results).reset_index(drop=True)
 

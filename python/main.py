@@ -22,6 +22,7 @@ def main():
     # 모든 거래 데이터 불러오기
     transactions = load_transaction_data()
     # ✅ 거래 데이터와 product_meta 병합 (발매가 추가)
+    #transactions["date_created"] = pd.to_datetime(transactions["date_created"])
     transactions = transactions.merge(product_meta[['product_id', 'original_price']], on="product_id", how="left")
 
     # 24시간 간격 리셀 시장 지수 계산
