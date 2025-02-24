@@ -37,7 +37,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
 
     return [resell_market_index, market_data]
 
-def calculate_resell_market_index_4h(transactions, product_meta, product_ids, baseline_date):
+def calculate_resell_market_index_4h(transactions, product_meta, product_ids, baseline_date, alpha=0.1):
     """
     여러 상품의 리셀 지수를 기반으로 전체 리셀 시장의 대표 지수를 4시간 단위로 계산하는 함수.
     - 각 4시간 구간에 데이터가 있으면 해당 데이터를 이용해 인덱스를 산출하고,
@@ -80,9 +80,16 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         # 기준 거래량: 첫 구간의 거래량 또는 보정 값
         baseline_volume = grp["total_volume"].iloc[0] if not grp["total_volume"].isna().all() else get_adjusted_baseline_volume(grp, baseline_date)
 
+
+        # resell_index.py와 동일한 계산 방식 적용
+        grp["price_premium"] = grp["avg_price"] - baseline_price
+        grp["normalized_premium"] = grp["price_premium"] / baseline_price
+        grp["adjusted_weight"] = alpha * grp["total_volume"] + (1 - alpha) * grp["normalized_premium"]
+        grp["resell_index"] = (grp["avg_price"] * grp["adjusted_weight"]) / (baseline_price * baseline_volume) * 100
+        '''
         # 지수 계산: (평균가격 * 거래량) / (기준가격 * 기준거래량) * 100
         grp["resell_index"] = (grp["avg_price"] * grp["total_volume"]) / (baseline_price * baseline_volume) * 100
-        
+        '''
         # 결측치나 Inf 값에 대해서는 전/후 값 보간 혹은 fallback 처리
         grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
         grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")

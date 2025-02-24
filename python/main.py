@@ -33,7 +33,7 @@ def main():
         market_resell_index_24h,
         "resell_index", 
         title="Resell Market Index (24h)", 
-        # save=True
+        save=True
     )
 
     filtered_data = market_data[market_data['date_created'] == baseline_date.split("T")[0]]
@@ -57,7 +57,7 @@ def main():
         market_resell_index_4h,
         "resell_index",
         title="Resell Market Index (4h)", 
-        # save=True
+        save=True
     )
 
     # 보간법 사용 내역 저장

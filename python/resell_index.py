@@ -2,10 +2,10 @@
 import pandas as pd
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume, save_interpolation_log, interpolation_logs
 
-def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha = 0.3 , log_csv_path="interpolation_logs.csv"):
+def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha = 0.1 , log_csv_path="interpolation_logs.csv"):
     """
-    \(\alpha\) (0~1) 값을 조정하여 거래량 vs 가격 프리미엄 비중 조절
-    예: \(\alpha = 0.7\) → 거래량을 70%, 가격 프리미엄을 30% 반영
+    (alpha) (0~1) 값을 조정하여 거래량 vs 가격 프리미엄 비중 조절
+    예: (alpha = 0.7) → 거래량을 70%, 가격 프리미엄을 30% 반영
 
     특정 상품 ID에 대해 거래량 가중치를 적용한 리셀 지수를 계산하는 함수
     :param transactions: 전체 거래 데이터 (DataFrame)
@@ -68,43 +68,28 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     # 가격 프리미엄 계산
     product_resell_index["price_premium"] = product_resell_index["avg_price"] - baseline_price
     #비율정규화
-    product_resell_index["normalized_premium"] = product_resell_index["price_pemium"] / baseline_price
-
+    product_resell_index["normalized_premium"] = product_resell_index["price_premium"] / baseline_price
+    
 
     # 거래량 & 가격 프리미엄 가중 평균
-    product_resell_index["adjusted_weight"] = alpha * product_resell_index["total_volume"] + (1 - alpha) * product_resell_index["price_premium"]
+    product_resell_index["adjusted_weight"] = alpha * product_resell_index["total_volume"] + (1 - alpha) * product_resell_index["normalized_premium"]
 
     # 지수 계산
     product_resell_index["resell_index"] = (
         (product_resell_index["avg_price"] * product_resell_index["adjusted_weight"]) /
         (baseline_price * baseline_volume) * 100
     )
-
+    
 
     # NaN 및 Inf 값 처리
     product_resell_index["resell_index"] = product_resell_index["resell_index"].replace([float("inf"), -float("inf")], None)
     # 📌 보간 전 데이터 백업
     original_resell_index = product_resell_index["resell_index"].copy()
-    print("보간법 실행 전 NaN 개수:", product_resell_index["resell_index"].isna().sum())
+    #print("보간법 실행 전 NaN 개수:", product_resell_index["resell_index"].isna().sum())
     
     product_resell_index["resell_index"] = product_resell_index["resell_index"].ffill().bfill().interpolate(method="linear")
-    print("보간법 실행 후 NaN 개수:", product_resell_index["resell_index"].isna().sum())
+    #print("보간법 실행 후 NaN 개수:", product_resell_index["resell_index"].isna().sum())
     
-    '''# 📌 보간법 적용 여부 체크
-    if not original_resell_index.equals(product_resell_index["resell_index"]):
-        interpolation_logs.append({"product_id": product_id, "method": "interpolation", "date": baseline_date})
-    '''
-    '''
-    # 보간법 적용 여부 확인
-    if product_resell_index["resell_index"].isna().sum() > 0:
-        interpolation_logs.append({"product_id": product_id, "method": "interpolation", "date": baseline_date})
-    '''
-    '''
-    # 🔹 보간 후 변경된 값 체크하여 로그 저장
-    for date, original_value, new_value in zip(product_resell_index["date_created"], original_resell_index, product_resell_index["resell_index"]):
-        if pd.notna(original_value) and original_value != new_value:
-            interpolation_logs.append({"product_id": product_id, "date_created": date, "column": "resell_index", "method": "interpolation", "original_value": original_value, "new_value": new_value})
-'''
     # 🔹 보간 후 변경된 값 체크하여 반드시 로그 저장
     for i, (date, orig_val, new_val) in enumerate(zip(
         product_resell_index["date_created"], original_resell_index, product_resell_index["resell_index"]
@@ -123,5 +108,14 @@ def calculate_product_resell_index(transactions, product_meta, product_id, basel
     if interpolation_logs:
         save_interpolation_log()
         pd.DataFrame(interpolation_logs).to_csv(log_csv_path, index=False)
+
+     # ★★ 기준일(예: 2025-01-31)이 존재하면 해당 지수를 100으로 정규화 ★★
+    baseline_date_obj = pd.to_datetime(baseline_date).date()
+    if baseline_date_obj in product_resell_index["date_created"].values:
+        base_value = product_resell_index.loc[product_resell_index["date_created"] == baseline_date_obj, "resell_index"].iloc[0]
+    else:
+        base_value = product_resell_index["resell_index"].iloc[0]
+    product_resell_index["resell_index"] = product_resell_index["resell_index"] / base_value * 100
+
 
     return product_resell_index
