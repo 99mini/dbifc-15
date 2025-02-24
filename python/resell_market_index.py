@@ -23,11 +23,11 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
 
         product_index["product_id"] = product_id
         product_index["name"] = product_meta[product_meta["product_id"] == product_id]["name"].values[0]
-        
+
         resell_indices.append(product_index)
 
         # 단일 상품 인덱스 저장
-        plot_single_resell_index(product_index, product_id, "resell_index", save=True)
+        # plot_single_resell_index(product_index, product_id, "resell_index", save=True)
 
     if not resell_indices:
         print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
@@ -51,21 +51,28 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
     - 데이터가 없으면 data_processing.py 내 보정 함수들(get_adjusted_baseline_price, get_adjusted_baseline_volume 등)을
       필요에 따라 호출하여 인덱스 값을 추정하는 방식으로 처리합니다.
     """
+
+    # 4시간 단위로 그룹화
+    step = "4h"
+
     resell_indices = []
 
     # 우선 각 상품별로 4시간 단위 리셀 지수를 계산
     # 기존 함수와 동일한 calculate_product_resell_index를 사용하면 날짜 단위로 그룹화되므로, 여기서는 직접 4시간 단위로 재계산합니다.
     for product_id in product_ids:
         # 해당 상품의 거래 데이터 필터링 및 날짜 변환
-        product_data = transactions[(transactions["product_id"] == product_id) & 
-                                    (pd.to_datetime(transactions["date_created"]) >= pd.to_datetime(baseline_date))].copy()
+        product_data = transactions[
+                (transactions["product_id"] == product_id) 
+            # &   (pd.to_datetime(transactions["date_created"]) >= pd.to_datetime(baseline_date))
+        ].copy()
+
         if product_data.empty:
             print(f"⚠️ 상품 ID {product_id}의 거래 데이터 없음, 스킵")
             continue
         product_data["date_created"] = pd.to_datetime(product_data["date_created"])
         product_data = product_data.set_index("date_created")
         # 4시간 단위로 그룹화하여 평균 가격과 거래 건수(거래량)를 계산
-        grp = product_data.resample("4h").agg(
+        grp = product_data.resample(step).agg(
             avg_price=("price", "mean"),
             total_volume=("price", "count")
         ).reset_index()
@@ -125,7 +132,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
 
     # 4시간 단위로 그룹화하여 시장 지수 산출 (평균값)
     results = []
-    grouped = market_data.resample("4h")
+    grouped = market_data.resample(step)
     for interval, group in grouped:
         idx_value = group["resell_index"].mean() if not group.empty else 0
         results.append({"date_created": interval, "market_resell_index": idx_value})

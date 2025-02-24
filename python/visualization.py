@@ -111,7 +111,7 @@ def plot_premium_with_resell_index(resell_index_data, premium_data_list, output_
             premium_data["normalized_premium"], 
             linestyle='-', 
             color=color_list[idx % len(color_list)], 
-            label=f"{premium_data["name"][0]}",
+            label=f"{premium_data['name'].values[0]}",
             linewidth=1,
             alpha=0.5,
             dash_joinstyle='round'

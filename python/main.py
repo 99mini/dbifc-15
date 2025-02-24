@@ -76,10 +76,10 @@ def main():
 
 
     # sample 갯수
-    sample_size = 1
+    sample_size = 4
     premium_data = []
     # 지수에 편입되지 않은 상품들
-    for product_id in random.sample(non_transfer_product_ids, sample_size):
+    for product_id in random.sample(non_transfer_product_ids, k = sample_size):
         data = pd.read_csv(f"{DATA_PATH}/{product_id}.csv")
 
         original_price = product_meta[product_meta["product_id"] == product_id]["original_price"].values[0]
@@ -87,10 +87,14 @@ def main():
 
         data["name"] = product_meta[product_meta["product_id"] == product_id]["name"].values[0]
 
+        if data["name"].empty:
+            data["name"] = "Unknown"
+
         data['date_created'] = pd.to_datetime(data['date_created'])
 
-        # baseline_date 이후 데이터만 선택
-        data = data[data['date_created'] >= baseline_date].copy()
+        # baseline_date ~ endline_date 데이터만 선택
+        data = data[data['date_created'] >= baseline_date]
+        data = data[data['date_created'] < endline_date]
 
         premium_data.append(data)
 
