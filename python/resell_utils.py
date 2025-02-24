@@ -13,10 +13,18 @@ def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volum
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100
     '''
+    '''
     # 로그 함수를 사용함으로써 가격 차이의 스케일을 변환하여 극단적인 값들의 영향을 완화
     #avg_price - baseline_price 값이 너무 낮아져서 음수가 지나치게 커지는 것을 방지. 즉, 최소값을 -baseline_price로 제한하여 음수에 대한 안전장치
     #기준 가격이 0보다 클 때만 나누기를 수행하고, 그렇지 않으면 0을 할당하여 0으로 나누는 오류를 방지
-    price_premium = np.log1p(max(avg_price - baseline_price, -baseline_price))  # 🔹 음수 방지 (최소 -baseline_price)
+    price_premium = np.log1p(max(avg_price - baseline_price, -baseline_price,0))  # 🔹 음수 방지 (최소 -baseline_price)
+    normalized_premium = price_premium / baseline_price if baseline_price > 0 else 0
+    adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
+    return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100'''
+    
+    
+    #손해 보고 파는 경우 지수를 0으로 설정
+    price_premium = max(avg_price - baseline_price, 0)  # 🔹 음수 방지
     normalized_premium = price_premium / baseline_price if baseline_price > 0 else 0
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100
@@ -63,14 +71,14 @@ def calculate_product_resell_index_laspeyres(transactions, product_meta, product
             "new_value": baseline_price
         })
 
-    # ✅ 거래 데이터에서 baseline_volume 직접 계산 (기존 compute_resell_index 방식 유지)
+    # 거래 데이터에서 baseline_volume 직접 계산 (기존 compute_resell_index 방식 유지)
     baseline_volume = product_resell_index.loc[product_resell_index["date_created"] == pd.to_datetime(baseline_date).date(), "total_volume"]
     if baseline_volume.empty:
         baseline_volume = get_adjusted_baseline_volume(product_resell_index, baseline_date, product_id)  # 보정값 사용
     else:
         baseline_volume = baseline_volume.iloc[0]  # 첫 번째 값 사용
 
-    # 📌 리셀 지수 계산 (라스파이레스 방식 적용)
+    # 리셀 지수 계산 (라스파이레스 방식 적용)
     product_resell_index["resell_index"] = product_resell_index["avg_price"].apply(
         lambda avg_price: compute_resell_index_laspeyres(avg_price, baseline_price, baseline_volume)
     )
@@ -92,6 +100,7 @@ def normalize_index(df, index_column="resell_index", baseline_date=None):
         base_value = df[index_column].iloc[0]
     df[index_column] = df[index_column] / base_value * 100
     return df'''
+    # 데이터프레임이 비어있거나 필요한 컬럼이 없을 때, 그리고 기준값이 NaN인 경우에 대해 명시적인 에러 처리를 추가
     if df.empty or index_column not in df.columns:
         print("⚠️ 데이터프레임이 비어 있거나 지정된 인덱스 컬럼이 없음 → 빈 데이터 반환")
         return df  # 빈 DataFrame 반환
