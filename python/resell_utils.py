@@ -13,7 +13,9 @@ def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volum
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100
     '''
-    
+    # 로그 함수를 사용함으로써 가격 차이의 스케일을 변환하여 극단적인 값들의 영향을 완화
+    #avg_price - baseline_price 값이 너무 낮아져서 음수가 지나치게 커지는 것을 방지. 즉, 최소값을 -baseline_price로 제한하여 음수에 대한 안전장치
+    #기준 가격이 0보다 클 때만 나누기를 수행하고, 그렇지 않으면 0을 할당하여 0으로 나누는 오류를 방지
     price_premium = np.log1p(max(avg_price - baseline_price, -baseline_price))  # 🔹 음수 방지 (최소 -baseline_price)
     normalized_premium = price_premium / baseline_price if baseline_price > 0 else 0
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
