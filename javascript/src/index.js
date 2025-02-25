@@ -8,7 +8,7 @@ import {
 
 import { spawn } from "node:child_process";
 
-const BASE_DATE = "2025-01-T00:00:00Z";
+const BASE_DATE = "2025-01-15T00:00:00Z";
 const END_DATE = "2025-02-15T00:00:00Z";
 
 async function main() {
@@ -26,7 +26,7 @@ async function main() {
 
   const tradingVolume = getTradingVolumeForAllProducts(BASE_DATE, END_DATE)
     .sort((a, b) => b.volume - a.volume)
-    .slice(0, 50);
+    .slice(0, 100);
 
   console.log("tradingVolume", tradingVolume);
 
@@ -49,6 +49,8 @@ async function main() {
     `기준일까지 데이터가 존재하는 거래량 상위 종목 리스트: ${validDateList.length} 개`,
     validDateList
   );
+
+  spawn(`rm ../source/trading/*.csv`, { shell: true });
 
   for (const validData of validDateList) {
     spawn(`cp output/${validData.product_id}.csv ../source/trading`, {

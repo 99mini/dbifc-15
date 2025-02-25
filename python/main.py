@@ -12,8 +12,8 @@ from utils import load_transaction_data
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join("..", "source")
 
-baseline_date   = "2025-01-31T00:00:00Z"
-endline_date    = "2025-02-14T00:00:00Z"
+baseline_date   = "2025-01-15T00:00:00Z"
+endline_date    = "2025-02-15T00:00:00Z"
 
 start_time = time.time()
 
@@ -42,8 +42,9 @@ def main():
     plot_resell_index(
         market_resell_index_24h,
         "resell_index", 
-        title="Resell Market Index (24h)", 
-        save=True
+        title="Resell Market Index (24h) - 0115~0215", 
+        save=True,
+        # show=True
     )
 
     filtered_data = market_data[market_data["date_created"] == baseline_date.split("T")[0]]
@@ -66,8 +67,8 @@ def main():
     plot_resell_index(
         market_resell_index_4h,
         "resell_index",
-        title="Resell Market Index (4h)", 
-        # save=True,
+        title="Resell Market Index (4h) - 0115~0215", 
+        save=True,
         # show=True
     )
 
@@ -108,16 +109,16 @@ def main():
         market_resell_index_4h,
         premium_data,
         output_dir="merged",
-        title="Resell & Premium (4h)",
-        # save=True,
+        title="Resell & Premium (4h) - 0115~0215",
+        save=True,
         # show=True
     )
     plot_premium_with_resell_index(
         market_resell_index_24h,
         premium_data,
         output_dir="merged",
-        title="Resell & Premium (24h)",
-        # save=True,
+        title="Resell & Premium (24h) - 0115~0215",
+        save=True,
         # show=True
     )
 
