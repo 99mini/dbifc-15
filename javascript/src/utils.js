@@ -363,3 +363,51 @@ export function findNonScrapedProductByDate(baseDate) {
   console.log("valid data count:", fileIds.length - ret.length);
   return ret;
 }
+
+/**
+ *
+ * @param {string} productId
+ * @param {string} baseDate
+ * @param {string} endDate
+ * @returns {number} trading volume
+ */
+export function getTradingVolume(productId, baseDate, endDate) {
+  const rawData = readCsv(`${productId}.csv`);
+
+  const data = csvToJson(
+    rawData,
+    [
+      "product_id",
+      "price",
+      "option",
+      "date_created",
+      "is_immediate_delivery_item",
+    ],
+    true
+  );
+
+  const filteredData = data.filter(
+    (item) =>
+      new Date(item.date_created) > new Date(baseDate) &&
+      new Date(item.date_created) < new Date(endDate)
+  );
+
+  return filteredData.length;
+}
+
+/**
+ *
+ * @param {*} baseDate
+ * @param {*} endDate
+ * @returns {{product_id: number, volume: number}[]}
+ */
+export function getTradingVolumeForAllProducts(baseDate, endDate) {
+  const files = getAllOutputFiles();
+  const fileIds = files.map((file) => file.split(".")[0]);
+
+  const ret = fileIds.map((id) => ({
+    product_id: id,
+    volume: getTradingVolume(id, baseDate, endDate),
+  }));
+  return ret;
+}

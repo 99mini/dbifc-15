@@ -183,7 +183,7 @@ def get_discount_volume_threshold(df, baseline_price, quantile=0.5, default_thre
     threshold = discount_volume_by_day.quantile(quantile)
     return threshold if threshold > 0 else default_threshold
 
-meta_df = pd.read_csv('../javascript/output/product_meta_data2.csv')
+meta_df = pd.read_csv('../source/meta/product_meta_data.csv')
 
 def analyze_alpha_sensitivity(df, baseline_volume, discount_volume_quantile, alpha_values):
     """
