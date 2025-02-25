@@ -2,8 +2,7 @@
 import pandas as pd
 from resell_index import calculate_product_resell_index
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume
-from resell_utils import compute_resell_index, normalize_index, compute_resell_index_custom, get_discount_volume_threshold
-from visualization import plot_single_resell_index
+from resell_utils import normalize_index, compute_resell_index_custom, get_discount_volume_threshold
 
 def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date):
     """
@@ -26,9 +25,6 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
 
         resell_indices.append(product_index)
 
-        # 단일 상품 인덱스 저장
-        # plot_single_resell_index(product_index, product_id, "resell_index", save=True)
-
     if not resell_indices:
         print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
         return pd.DataFrame(columns=["date_created", "market_resell_index"])
@@ -44,7 +40,6 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
 
      # 기준일(예: baseline_date)에 해당하는 값이 100이 되도록 정규화
     resell_market_index = normalize_index(resell_market_index, index_column="market_resell_index", baseline_date=baseline_date)
-
 
     return [resell_market_index, market_data]
 

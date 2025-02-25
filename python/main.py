@@ -1,12 +1,13 @@
-#main.py
-import pandas as pd
 import os
+import random
+import time
+
+import pandas as pd
+
 from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
 from visualization import plot_resell_index, plot_premium_with_resell_index
-from calculate_resell_market import load_transaction_data
-import random
-import time
+from utils import load_transaction_data
 
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join('..', 'javascript', 'output')
@@ -66,7 +67,8 @@ def main():
         market_resell_index_4h,
         "resell_index",
         title="Resell Market Index (4h)", 
-        save=True
+        # save=True,
+        # show=True
     )
 
     # 보간법 사용 내역 저장

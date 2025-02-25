@@ -1,11 +1,12 @@
-# resell_utils.py
 import pandas as pd
-import os
 import numpy as np
-from data_processing import get_adjusted_baseline_price, save_interpolation_log, interpolation_logs, get_adjusted_baseline_volume
+
+from data_processing import get_adjusted_baseline_price, interpolation_logs, get_adjusted_baseline_volume
 
 def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volume, alpha):
     '''
+    @deprecated: not used anymore
+
     주어진 값들을 바탕으로 resell index를 계산합니다.
     
     price_premium = avg_price - baseline_price
@@ -27,7 +28,6 @@ def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volum
     normalized_premium = price_premium / baseline_price if baseline_price > 0 else 0
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100
-
 
 def compute_resell_index_custom(avg_price, total_volume, baseline_price, baseline_volume, alpha, discount_volume_threshold):
     """
@@ -68,9 +68,10 @@ def compute_resell_index_custom(avg_price, total_volume, baseline_price, baselin
     index = (avg_price / baseline_price) * (1 + combined_factor) * 100
     return index
 
-
 def compute_resell_index_laspeyres(avg_price, baseline_price, baseline_volume):
     """
+    @internal
+
     라스파이레스 방식으로 리셀 지수를 계산하는 함수.
     - 거래량을 기준 시점에서 고정하고, 이후 가격 변동만 반영.
     """
@@ -82,6 +83,8 @@ def compute_resell_index_laspeyres(avg_price, baseline_price, baseline_volume):
 
 def calculate_product_resell_index_laspeyres(transactions, product_meta, product_id, baseline_date):
     """
+    @deprecated: not used anymore
+
     특정 상품 ID에 대해 거래량을 고정한 리셀 지수를 계산하는 함수.
     """
     transactions.loc[:, 'date_created'] = pd.to_datetime(transactions['date_created'])
@@ -158,8 +161,6 @@ def normalize_index(df, index_column="resell_index", baseline_date=None):
 
     df[index_column] = df[index_column] / base_value * 100
     return df
-
-
 
 def get_discount_volume_threshold(df, baseline_price, quantile=0.5, default_threshold=1):
     """
