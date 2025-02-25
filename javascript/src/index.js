@@ -8,6 +8,8 @@ import {
 
 import { spawn } from "node:child_process";
 
+// FIXME: 기준일을 늘렸을 경우 거래량이 너무 많아서 과거의 데이터를 취하지 못한 데이터를 반영하지 못함
+
 const BASE_DATE = "2025-01-15T00:00:00Z";
 const END_DATE = "2025-02-15T00:00:00Z";
 
