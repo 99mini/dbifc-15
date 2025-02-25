@@ -2,7 +2,7 @@
 import pandas as pd
 from resell_index import calculate_product_resell_index
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume
-from resell_utils import compute_resell_index, normalize_index
+from resell_utils import compute_resell_index, normalize_index, compute_resell_index_custom, get_discount_volume_threshold
 from visualization import plot_single_resell_index
 
 def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date):
@@ -12,7 +12,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
     resell_indices = []
 
     for product_id in product_ids:
-        product_index = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date)
+        product_index = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha=0.1)
 
         '''if product_index.empty:
             continue  # 거래 데이터가 없는 경우 스킵'''
@@ -27,7 +27,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
         resell_indices.append(product_index)
 
         # 단일 상품 인덱스 저장
-        # plot_single_resell_index(product_index, product_id, "resell_index", save=True)
+        plot_single_resell_index(product_index, product_id, "resell_index", save=True)
 
     if not resell_indices:
         print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
@@ -41,6 +41,10 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
     resell_market_index = market_data.groupby("date_created").agg(
         market_resell_index=("resell_index", "mean")
     ).reset_index().rename(columns={"date_only": "date_created"})
+
+     # 기준일(예: baseline_date)에 해당하는 값이 100이 되도록 정규화
+    resell_market_index = normalize_index(resell_market_index, index_column="market_resell_index", baseline_date=baseline_date)
+
 
     return [resell_market_index, market_data]
 
@@ -92,7 +96,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
             baseline_price = get_adjusted_baseline_price(grp, baseline_date)
 
         # 기준 거래량: 첫 구간의 거래량 또는 보정 값
-        baseline_volume = grp["total_volume"].iloc[0] if not grp["total_volume"].isna().all() else get_adjusted_baseline_volume(grp, baseline_date)
+        #baseline_volume = grp["total_volume"].iloc[0] if not grp["total_volume"].isna().all() else get_adjusted_baseline_volume(grp, baseline_date)
 
         '''
         # resell_index.py와 동일한 계산 방식 적용
@@ -102,15 +106,36 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         grp["resell_index"] = (grp["avg_price"] * grp["adjusted_weight"]) / (baseline_price * baseline_volume) * 100
         '''
         # 지수 계산: (평균가격 * 거래량) / (기준가격 * 기준거래량) * 100
-        grp["resell_index"] = (grp["avg_price"] * grp["total_volume"]) / (baseline_price * baseline_volume) * 100
+        #grp["resell_index"] = (grp["avg_price"] * grp["total_volume"]) / (baseline_price * baseline_volume) * 100
         '''
         # 결측치나 Inf 값에 대해서는 전/후 값 보간 혹은 fallback 처리
         grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
         grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")
         '''
          # 각 4시간 구간별로 resell index 계산 (공통 함수 사용)
+        #grp["resell_index"] = grp.apply(
+        #    lambda row: compute_resell_index_custom(row["avg_price"], row["total_volume"], baseline_price, baseline_volume, alpha), axis=1
+        #)
+         # 기준 거래량: 첫 4시간 그룹의 거래량 또는 보정 값
+        if not grp["total_volume"].isna().all():
+            baseline_volume = grp["total_volume"].iloc[0]
+        else:
+            baseline_volume = get_adjusted_baseline_volume(grp, baseline_date)
+        
+        # 할인 거래량 임계값 산출: 그룹 데이터를 대상으로 get_discount_volume_threshold 함수 사용
+        discount_volume_threshold = get_discount_volume_threshold(product_data.reset_index(), baseline_price, quantile=0.5, default_threshold=1)
+
+        # compute_resell_index_custom 호출 시 discount_volume_threshold 인자 추가
         grp["resell_index"] = grp.apply(
-            lambda row: compute_resell_index(row["avg_price"], row["total_volume"], baseline_price, baseline_volume, alpha), axis=1
+            lambda row: compute_resell_index_custom(
+                row["avg_price"], 
+                row["total_volume"], 
+                baseline_price, 
+                baseline_volume, 
+                alpha,
+                discount_volume_threshold
+            ), 
+            axis=1
         )
         grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
         grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")

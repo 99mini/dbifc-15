@@ -1,13 +1,31 @@
 #기준일 보정
 import os
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 #timedelta는 datetime 모듈에서 제공하는 클래스, 날짜와 시간 간의 차이를 표현하는 데 사용,특정 날짜에서 며칠을 더하거나 빼는 계산을 할 때 유용
 
 #기준일(baseline_date)에 거래가 없으면 하루씩 앞뒤로 이동하여 가장 가까운 거래일의 데이터를 사용
 def get_closest_trading_day(product_data, baseline_date):
+    # baseline_date가 datetime 객체가 아니라면 변환
+    if not isinstance(baseline_date, pd.Timestamp):
+        baseline_date = pd.to_datetime(baseline_date)
+    
+    # "date_created" 컬럼 확인: 만약 datetime64 타입이면 .dt accessor 사용, 아니라면 타입에 따라 처리
+    if pd.api.types.is_datetime64_any_dtype(product_data["date_created"]):
+        available_dates = sorted(product_data["date_created"].dt.date.unique())
+    else:
+        # 첫 번째 값의 타입을 확인합니다.
+        sample = product_data["date_created"].iloc[0]
+        if isinstance(sample, (pd.Timestamp, date)):
+            # 이미 datetime 또는 date 객체라면 바로 사용
+            available_dates = sorted(product_data["date_created"].unique())
+        else:
+            # 그렇지 않으면 문자열 등일 수 있으므로, 명시적으로 변환합니다.
+            product_data = product_data.copy()  # 원본 수정 방지를 위해 복사
+            product_data.loc[:, "date_created"] = pd.to_datetime(product_data["date_created"])
+            available_dates = sorted(product_data["date_created"].dt.date.unique())
     # 날짜 정렬
-    available_dates = sorted(product_data["date_created"].dt.date.unique())
+    #available_dates = sorted(product_data["date_created"].dt.date.unique())
 
      # 사용 가능한 날짜가 없는 경우 예외 처리
     if not available_dates:
@@ -47,9 +65,20 @@ def get_adjusted_baseline_volume(product_data, baseline_date):
     """
     closest_date = get_closest_trading_day(product_data, baseline_date)
 
-    if closest_date is not None:
-        return product_data[product_data["date_created"].dt.date == closest_date]["total_volume"].mean()
+    #if closest_date is not None:
+    #    return product_data[product_data["date_created"].dt.date == closest_date]["total_volume"].mean()
     
+    if closest_date is not None:
+        # "date_created" 컬럼의 첫 번째 값의 타입을 확인합니다.
+        sample = product_data["date_created"].iloc[0]
+        if isinstance(sample, pd.Timestamp):
+            # 값들이 pd.Timestamp라면 .dt.date 사용
+            target = product_data[product_data["date_created"].dt.date == closest_date]
+        else:
+            # 그렇지 않으면(예: 이미 datetime.date 객체라면) 바로 비교
+            target = product_data[product_data["date_created"] == closest_date]
+        return target["total_volume"].mean()
+
     # 보간법 적용 (앞/뒤 데이터 활용)
     if product_data["total_volume"].isna().all():
         return None  # 모든 데이터가 NaN이면 None 반환

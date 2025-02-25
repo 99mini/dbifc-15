@@ -1,5 +1,6 @@
 # resell_utils.py
 import pandas as pd
+import os
 import numpy as np
 from data_processing import get_adjusted_baseline_price, save_interpolation_log, interpolation_logs, get_adjusted_baseline_volume
 
@@ -22,12 +23,52 @@ def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volum
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100'''
     
-    
     #손해 보고 파는 경우 지수를 0으로 설정
     price_premium = max(avg_price - baseline_price, 0)  # 🔹 음수 방지
     normalized_premium = price_premium / baseline_price if baseline_price > 0 else 0
     adjusted_weight = alpha * total_volume + (1 - alpha) * normalized_premium
     return (avg_price * adjusted_weight) / (baseline_price * baseline_volume) * 100
+
+
+def compute_resell_index_custom(avg_price, total_volume, baseline_price, baseline_volume, alpha, discount_volume_threshold):
+    """
+    리셀 지수를 할인률과 거래량을 고려해 계산하는 함수.
+    
+    Parameters:
+      avg_price: 현재 거래 평균가격
+      total_volume: 현재 거래량
+      baseline_price: 발매가(기준가격)
+      baseline_volume: 기준 거래량 (예: 발매 당일 거래량)
+      alpha: 거래량의 기여도를 조정하는 가중치 (0 <= α <= 1)
+      discount_volume_threshold: 할인 거래를 의미 있게 반영하기 위한 거래량 임계값
+      
+    Returns:
+      계산된 리셀 지수
+    """
+    # 거래량을 기준 거래량으로 정규화 (단위 맞추기)
+    normalized_volume = total_volume / baseline_volume if baseline_volume > 0 else 0
+    
+    if avg_price >= baseline_price:
+        # 프리미엄 케이스: 발매가보다 높은 경우
+        normalized_premium = (avg_price - baseline_price) / baseline_price
+        # 프리미엄과 정규화된 거래량을 가중치로 결합
+        combined_factor = (1 - alpha) * normalized_premium + alpha * normalized_volume
+    else:
+        # 할인 케이스: 발매가보다 낮은 경우
+        discount_rate = (baseline_price - avg_price) / baseline_price  # 할인율은 양수 값
+        # 거래량이 임계값 이상일 때 할인 효과 반영, 그 외엔 할인 효과 무시
+        if total_volume >= discount_volume_threshold:
+            # 할인은 부정적인 효과로 반영하되, 거래량이 크면 시장의 활성을 반영하도록 함
+            combined_factor = (1 - alpha) * (-discount_rate) + alpha * normalized_volume
+        else:
+            # 임계값 미달이면 할인 효과는 무시 (또는 0으로 처리)
+            combined_factor = alpha * normalized_volume
+    
+    # 최종 지수 계산:
+    # avg_price/baseline_price가 가격 변동을 반영하고, (1 + combined_factor)가 거래 및 프리미엄/할인 효과를 반영
+    index = (avg_price / baseline_price) * (1 + combined_factor) * 100
+    return index
+
 
 def compute_resell_index_laspeyres(avg_price, baseline_price, baseline_volume):
     """
@@ -120,3 +161,80 @@ def normalize_index(df, index_column="resell_index", baseline_date=None):
     return df
 
 
+
+def get_discount_volume_threshold(df, baseline_price, quantile=0.5, default_threshold=1):
+    """
+    특정 상품의 거래 데이터(df)에서 할인 거래량 임계값을 계산합니다.
+    
+    Parameters:
+      df: 특정 상품의 거래 데이터가 담긴 DataFrame (반드시 'price'와 'date_created' 컬럼 포함)
+      baseline_price: 발매가(원래 가격)
+      quantile: 임계값 산출에 사용할 분위수 (기본 0.5는 중앙값)
+      default_threshold: 할인 거래 데이터가 없거나 계산 결과가 0일 경우 사용할 기본 임계값
+      
+    Returns:
+      할인 거래량 임계값 (최소 거래 건수)
+    """
+    df['date_created'] = pd.to_datetime(df['date_created'])
+    discount_df = df[df['price'] < baseline_price]
+    if discount_df.empty:
+        return default_threshold
+    discount_volume_by_day = discount_df.groupby(discount_df['date_created'].dt.date).size()
+    threshold = discount_volume_by_day.quantile(quantile)
+    return threshold if threshold > 0 else default_threshold
+
+meta_df = pd.read_csv('../javascript/output/product_meta_data2.csv')
+
+
+def analyze_alpha_sensitivity(df, baseline_volume, discount_volume_quantile, alpha_values):
+    """
+    전체 거래 데이터(df)에서 상품별로 다양한 α 값에 따른 리셀 지수를 계산합니다.
+    
+    Parameters:
+      df: 전체 거래 데이터 DataFrame (product_id, price, date_created 포함)
+      baseline_volume: 기준 거래량 (고정값 또는 별도 산출)
+      discount_volume_quantile: 할인 거래량 임계값 산출에 사용할 분위수 (예: 0.5)
+      alpha_values: 분석할 α 값 리스트 (예: [0.3, 0.5, 0.7])
+      
+    Returns:
+      상품별로 α 민감도 결과를 담은 딕셔너리 {product_id: {alpha: index, ...}, ...}
+    """
+    results = {}
+    for product_id, group in df.groupby('product_id'):
+        # 메타 데이터에서 해당 상품의 발매가 정보 가져오기
+        baseline_price = meta_df.loc[meta_df['product_id'] == product_id, 'original_price'].values[0]
+        avg_price = group['price'].mean()
+        total_volume = len(group)
+        discount_volume_threshold = get_discount_volume_threshold(group, baseline_price, quantile=discount_volume_quantile, default_threshold=1)
+        product_alpha_results = {}
+    
+        for alpha in alpha_values:
+            index = compute_resell_index_custom(avg_price, total_volume, baseline_price, baseline_volume, alpha, discount_volume_threshold)
+            product_alpha_results[alpha] = index
+        results[product_id] = product_alpha_results
+    return results
+
+def analyze_discount_volume_distribution(df, baseline_price_lookup):
+    """
+    거래 데이터에서 할인 거래(가격 < baseline_price)의 날짜별 건수를 계산하고, 
+    통계 요약(descriptive statistics)을 반환합니다.
+    
+    Parameters:
+      transactions_file: 거래 데이터 CSV 파일 경로 (예: "36.csv")
+      baseline_price: 발매가 (예: 139000)
+      
+    Returns:
+      할인 거래 건수의 날짜별 분포에 대한 요약 통계 (pandas Series의 describe() 결과)
+    """
+    # 날짜 형식 변환
+    df['date_created'] = pd.to_datetime(df['date_created'])
+    results = {}
+    for product_id, group in df.groupby('product_id'):
+        baseline_price = baseline_price_lookup.get(product_id)
+        if baseline_price is None:
+            continue
+        discount_df = group[group['price'] < baseline_price]
+        # 상품별 날짜별 할인 거래 건수 집계
+        discount_volume_by_day = discount_df.groupby(discount_df['date_created'].dt.date).size()
+        results[product_id] = discount_volume_by_day.describe()  # 또는 원하는 방식으로 저장
+    return results
