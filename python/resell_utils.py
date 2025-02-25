@@ -84,7 +84,7 @@ def calculate_product_resell_index_laspeyres(transactions, product_meta, product
     """
     특정 상품 ID에 대해 거래량을 고정한 리셀 지수를 계산하는 함수.
     """
-    transactions["date_created"] = pd.to_datetime(transactions["date_created"])
+    transactions.loc[:, 'date_created'] = pd.to_datetime(transactions['date_created'])
     product_data = transactions[(transactions["product_id"] == product_id) & (transactions["date_created"] >= baseline_date)]
     
     if product_data.empty:
@@ -174,7 +174,7 @@ def get_discount_volume_threshold(df, baseline_price, quantile=0.5, default_thre
     Returns:
       할인 거래량 임계값 (최소 거래 건수)
     """
-    df['date_created'] = pd.to_datetime(df['date_created'])
+    df.loc[:, 'date_created'] = pd.to_datetime(df['date_created'])
     discount_df = df[df['price'] < baseline_price]
     if discount_df.empty:
         return default_threshold
@@ -242,7 +242,7 @@ def analyze_discount_volume_distribution(df, baseline_price_lookup):
       할인 거래 건수의 날짜별 분포에 대한 요약 통계 (pandas Series의 describe() 결과)
     """
     # 날짜 형식 변환
-    df['date_created'] = pd.to_datetime(df['date_created'])
+    df.loc[:, 'date_created'] = pd.to_datetime(df['date_created'])
     results = {}
     for product_id, group in df.groupby('product_id'):
         baseline_price = baseline_price_lookup.get(product_id)

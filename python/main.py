@@ -6,12 +6,15 @@ from data_processing import save_interpolation_log
 from visualization import plot_resell_index, plot_premium_with_resell_index
 from calculate_resell_market import load_transaction_data
 import random
+import time
 
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join('..', 'javascript', 'output')
 
 baseline_date   = "2025-01-31T00:00:00Z"
 endline_date    = "2025-02-14T00:00:00Z"
+
+start_time = time.time()
 
 def main():
     # product_meta_data.csv에서 상품 ID 리스트 불러오기
@@ -99,9 +102,24 @@ def main():
         premium_data.append(data)
 
     # 리셀 시장 지수와 상품별 리셀 가격 타임시리즈 그래프 그리기
-    plot_premium_with_resell_index(market_resell_index_4h, premium_data, output_dir="merged", title="Resell & Premium (4h)", save=True)
-    plot_premium_with_resell_index(market_resell_index_24h, premium_data, output_dir="merged", title="Resell & Premium (24h)", save=True)
+    plot_premium_with_resell_index(
+        market_resell_index_4h,
+        premium_data,
+        output_dir="merged",
+        title="Resell & Premium (4h)",
+        # save=True,
+        # show=True
+    )
+    plot_premium_with_resell_index(
+        market_resell_index_24h,
+        premium_data,
+        output_dir="merged",
+        title="Resell & Premium (24h)",
+        # save=True,
+        # show=True
+    )
+
+    print(f"execution time: {time.time() - start_time}")
 
 if __name__ == "__main__":
 	main()
-

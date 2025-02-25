@@ -3,8 +3,6 @@ import pandas as pd
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume, save_interpolation_log, interpolation_logs
 from resell_utils import compute_resell_index, normalize_index, compute_resell_index_custom, get_discount_volume_threshold
 
-
-
 def calculate_product_resell_index(transactions: pd.DataFrame, product_meta: pd.DataFrame, product_id: int, baseline_date: str, alpha: float, discount_volume_quantile: float = 0.5, default_discount_threshold: float = 1):
     """    
     특정 상품 ID에 대해 할인 및 거래량을 반영한 리셀 지수를 계산하는 함수.
