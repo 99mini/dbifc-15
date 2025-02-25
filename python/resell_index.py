@@ -5,9 +5,21 @@ from resell_utils import compute_resell_index, normalize_index, compute_resell_i
 
 
 
-def calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha, discount_volume_quantile=0.5, default_discount_threshold=1):
-    """
+def calculate_product_resell_index(transactions: pd.DataFrame, product_meta: pd.DataFrame, product_id: int, baseline_date: str, alpha: float, discount_volume_quantile: float = 0.5, default_discount_threshold: float = 1):
+    """    
     특정 상품 ID에 대해 할인 및 거래량을 반영한 리셀 지수를 계산하는 함수.
+
+    Parameters:
+        transactions (pandas.DataFrame): 거래 데이터
+        product_meta (pandas.DataFrame): 상품 메타 데이터
+        product_id (int): 상품 ID
+        baseline_date (str): 기준 시점
+        alpha (float): 약성값
+        discount_volume_quantile (float): 할인 거래량 임계값 산출에 사용할 분위수 (기본 0.5)
+        default_discount_threshold (int): 할인 거래 데이터가 없거나 계산 결과가 0일 경우 사용할 기본 임계값 (기본 1)
+
+    Returns:
+        pandas.DataFrame: 리셀 지수를 담은 DataFrame
     """
     transactions["date_created"] = pd.to_datetime(transactions["date_created"])
     product_data = transactions[(transactions["product_id"] == product_id) & (transactions["date_created"] >= baseline_date)]

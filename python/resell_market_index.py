@@ -27,7 +27,7 @@ def calculate_resell_market_index(transactions, product_meta, product_ids, basel
         resell_indices.append(product_index)
 
         # 단일 상품 인덱스 저장
-        plot_single_resell_index(product_index, product_id, "resell_index", save=True)
+        # plot_single_resell_index(product_index, product_id, "resell_index", save=True)
 
     if not resell_indices:
         print("⚠️ 모든 상품의 데이터가 없음 → 빈 데이터프레임 반환")
@@ -65,16 +65,15 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
     # 기존 함수와 동일한 calculate_product_resell_index를 사용하면 날짜 단위로 그룹화되므로, 여기서는 직접 4시간 단위로 재계산합니다.
     for product_id in product_ids:
         # 해당 상품의 거래 데이터 필터링 및 날짜 변환
-        product_data = transactions[
-                (transactions["product_id"] == product_id) 
-            # &   (pd.to_datetime(transactions["date_created"]) >= pd.to_datetime(baseline_date))
-        ].copy()
+        product_data = transactions[(transactions["product_id"] == product_id)].copy()
 
         if product_data.empty:
             print(f"⚠️ 상품 ID {product_id}의 거래 데이터 없음, 스킵")
             continue
+    
         product_data["date_created"] = pd.to_datetime(product_data["date_created"])
         product_data = product_data.set_index("date_created")
+
         # 4시간 단위로 그룹화하여 평균 가격과 거래 건수(거래량)를 계산
         grp = product_data.resample(step).agg(
             avg_price=("price", "mean"),
@@ -91,6 +90,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         # 기준 가격은 product_meta에서 가져오거나, 없으면 보정 함수 사용
         baseline_price_arr = product_meta.loc[product_meta["product_id"] == product_id, "original_price"].values
         baseline_price = baseline_price_arr[0] if len(baseline_price_arr) > 0 else get_adjusted_baseline_price(grp, baseline_date)
+
         if baseline_price is None or pd.isna(baseline_price) or baseline_price == 0:
             # 필요 시 보정 함수 호출
             baseline_price = get_adjusted_baseline_price(grp, baseline_date)
@@ -105,9 +105,11 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         grp["adjusted_weight"] = alpha * grp["total_volume"] + (1 - alpha) * grp["normalized_premium"]
         grp["resell_index"] = (grp["avg_price"] * grp["adjusted_weight"]) / (baseline_price * baseline_volume) * 100
         '''
+
         # 지수 계산: (평균가격 * 거래량) / (기준가격 * 기준거래량) * 100
         #grp["resell_index"] = (grp["avg_price"] * grp["total_volume"]) / (baseline_price * baseline_volume) * 100
         '''
+
         # 결측치나 Inf 값에 대해서는 전/후 값 보간 혹은 fallback 처리
         grp["resell_index"] = grp["resell_index"].replace([float("inf"), -float("inf")], None)
         grp["resell_index"] = grp["resell_index"].ffill().bfill().interpolate(method="linear")
@@ -116,7 +118,7 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         #grp["resell_index"] = grp.apply(
         #    lambda row: compute_resell_index_custom(row["avg_price"], row["total_volume"], baseline_price, baseline_volume, alpha), axis=1
         #)
-         # 기준 거래량: 첫 4시간 그룹의 거래량 또는 보정 값
+        # 기준 거래량: 첫 4시간 그룹의 거래량 또는 보정 값
         if not grp["total_volume"].isna().all():
             baseline_volume = grp["total_volume"].iloc[0]
         else:
@@ -142,7 +144,6 @@ def calculate_resell_market_index_4h(transactions, product_meta, product_ids, ba
         
         # 첫 4시간 구간을 기준으로 정규화
         grp = normalize_index(grp, "resell_index", grp["date_created"].iloc[0])
-        
 
         grp["product_id"] = product_id
         resell_indices.append(grp)

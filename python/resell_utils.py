@@ -4,7 +4,6 @@ import os
 import numpy as np
 from data_processing import get_adjusted_baseline_price, save_interpolation_log, interpolation_logs, get_adjusted_baseline_volume
 
-
 def compute_resell_index(avg_price, total_volume, baseline_price, baseline_volume, alpha):
     '''
     주어진 값들을 바탕으로 resell index를 계산합니다.
@@ -185,9 +184,10 @@ def get_discount_volume_threshold(df, baseline_price, quantile=0.5, default_thre
 
 meta_df = pd.read_csv('../javascript/output/product_meta_data2.csv')
 
-
 def analyze_alpha_sensitivity(df, baseline_volume, discount_volume_quantile, alpha_values):
     """
+    @deprecated: not used anymore
+
     전체 거래 데이터(df)에서 상품별로 다양한 α 값에 따른 리셀 지수를 계산합니다.
     
     Parameters:
@@ -200,22 +200,37 @@ def analyze_alpha_sensitivity(df, baseline_volume, discount_volume_quantile, alp
       상품별로 α 민감도 결과를 담은 딕셔너리 {product_id: {alpha: index, ...}, ...}
     """
     results = {}
+    
+    # 전체 할인 거래량 분포 분석 (상품별 요약 통계)
+    baseline_price_lookup = {row['product_id']: row['original_price'] for _, row in meta_df.iterrows()}
+    discount_stats = analyze_discount_volume_distribution(df, baseline_price_lookup)
+
     for product_id, group in df.groupby('product_id'):
-        # 메타 데이터에서 해당 상품의 발매가 정보 가져오기
+        # 발매가 정보 가져오기
         baseline_price = meta_df.loc[meta_df['product_id'] == product_id, 'original_price'].values[0]
         avg_price = group['price'].mean()
         total_volume = len(group)
+
+        # 할인 거래량 임계값 계산
         discount_volume_threshold = get_discount_volume_threshold(group, baseline_price, quantile=discount_volume_quantile, default_threshold=1)
+
+        # α 값 자동 조정 (할인 거래량 통계를 활용)
+        std_dev_discount_volume = discount_stats.get(product_id, {}).get('std', 0)  # 할인 거래량 표준편차 사용
+        alpha = min(1, max(0, 1 - std_dev_discount_volume / total_volume))  # 변동성이 클수록 α 감소
+
         product_alpha_results = {}
-    
         for alpha in alpha_values:
             index = compute_resell_index_custom(avg_price, total_volume, baseline_price, baseline_volume, alpha, discount_volume_threshold)
             product_alpha_results[alpha] = index
+
         results[product_id] = product_alpha_results
+
     return results
 
 def analyze_discount_volume_distribution(df, baseline_price_lookup):
     """
+    @deprecated: not used anymore
+
     거래 데이터에서 할인 거래(가격 < baseline_price)의 날짜별 건수를 계산하고, 
     통계 요약(descriptive statistics)을 반환합니다.
     
