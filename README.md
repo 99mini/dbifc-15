@@ -1,6 +1,25 @@
 # 15회 DB보험금융공모전
 
+# Table of Contents
+
+- [주제](#주제)
+- [요약](#요약)
+  - [리셀 시장을 반영한 대체투자 지수 개발](#리셀-시장을-반영한-대체투자-지수-개발)
+  - [리셀 시장 지수 계산 공식 정리](#리셀-시장-지수-계산-공식-정리)
+    - [개별 상품 리셀 인덱스 (Resell Index)](#개별-상품-리셀-인덱스-resell-index)
+    - [전체 리셀 시장 지수 (Market Resell Index)](#전체-리셀-시장-지수-market-resell-index)
+    - [기준값 설정 (Baseline Price & Volume)](#기준값-설정-baseline-price--volume)
+- [구성원](#구성원)
+
 # 주제
+
+리셀 시장을 활용한 대체투자지수 개발 및 효용성 분석: 리셀 시장 지수(Resell Market Index, RMI)의 구축과 평가
+
+# 요약
+
+주제에 대하여 간략히 서술합니다. 논문 전문은 아래의 링크에 있습니다.
+
+> [리셀 시장을 활용한 대체투자지수 개발 및 효용성 분석: 리셀 시장 지수(Resell Market Index, RMI)의 구축과 평가](./docs/DB보험금융공모전_수학과컴퓨터.docx)
 
 ## 리셀 시장을 반영한 대체투자 지수 개발
 
@@ -19,6 +38,7 @@ ResellIndex = \left( \frac{AvgPrice \times TotalVolume}{BaselinePrice \times Bas
 $$
 
 ### 전체 리셀 시장 지수 (Market Resell Index)
+
 여러 상품의 개별 리셀 인덱스를 평균 내어 시장 전체의 리셀 지수를 계산
 
 $$
@@ -26,15 +46,16 @@ MarketResellIndex = \frac{\sum ResellIndex}{N}
 $$
 
 ### 기준값 설정 (Baseline Price & Volume)
+
 - 기준 가격(Baseline Price) 설정
-특정 상품의 발매가를 가져옴
+  특정 상품의 발매가를 가져옴
 
 $$
 BaselinePrice = ProductMeta[ProductID]["originalPrice"]
 $$
 
 - 기준 거래량(Baseline Volume) 설정
-첫 번째 거래일의 거래량을 기준으로 함
+  첫 번째 거래일의 거래량을 기준으로 함
 
 $$
 BaselineVolume = TotalVolume_{FirstDay}
@@ -44,4 +65,3 @@ $$
 
 - [99mini](https://github.com/99mini/)
 - [cakejin](https://github.com/cakejin)
-
