@@ -161,6 +161,38 @@ def plot_premium_with_resell_index(
         plt.show()
     plt.close()
 
+def plot_resell_index_for_alpha(
+    resell_index_data_with_alpha, 
+    output_dir, 
+    title="Resell Market Index", 
+    save=False,
+    show=False ):
+    """
+    alpha(민감도)값을 기준으로 resell index 그래프를 그리는 함수
+    x축: 
+
+    :params resell_index_data_with_alpha: list(df)["alpha", "date_created", "market_resell_index"]
+    """
+    plt.figure(figsize=(10, 5))
+
+    for idx, values in enumerate(resell_index_data_with_alpha):
+        alpha, data = values
+        plt.plot(data["date_created"], data["market_resell_index"], linestyle='-', label=f"α={alpha}", color=color_list[idx % len(color_list)])
+
+    plt.xlabel("Date")
+    plt.xticks(rotation=45)
+    plt.ylabel("Resell Index")
+    plt.legend()
+
+
+    if save:
+        plt.savefig(f'output/{output_dir}/{title}.png', dpi=300, bbox_inches='tight')
+
+    if show:
+        plt.show()
+
+    plt.close()
+
 def plot_stock_index(
     stock_index_data,
     output_dir,

@@ -6,8 +6,8 @@ import pandas as pd
 
 from resell_market_index import calculate_resell_market_index, calculate_resell_market_index_4h
 from data_processing import save_interpolation_log
-from visualization import plot_resell_index, plot_premium_with_resell_index
-from utils import load_transaction_data
+from visualization import plot_resell_index, plot_premium_with_resell_index, plot_resell_index_for_alpha
+from utils import load_transaction_data, save_txt
 
 # javascript/output 폴더 경로 설정
 DATA_PATH = os.path.join("..", "source")
@@ -71,6 +71,39 @@ def main():
         save=True,
         # show=True
     )
+
+    # alpha값에 따라 resell index 데이터 만들기
+    resell_index_data_with_alpha = []
+    for i in range(0, 11, 2):
+        alpha = i / 10
+
+        resell_alpha_df = calculate_resell_market_index_4h(
+                transactions, 
+                product_meta, 
+                product_ids, 
+                baseline_date, 
+                alpha
+            )
+
+        resell_index_data_with_alpha.append([alpha, resell_alpha_df])
+    
+    plot_resell_index_for_alpha(
+        resell_index_data_with_alpha,
+        "alpha",
+        title=f"Resell Market Index (4h) - {baseline_date}~{endline_date}", 
+        save=True,
+        # show=True
+    )
+
+    # alpha값에 따른 describe 출력
+    for alpha, data in resell_index_data_with_alpha:
+        print(f"α={alpha}:")
+        print(data.describe())
+
+        raw_text = f"{baseline_date}~{endline_date}\n"
+        raw_text += f"α={alpha}:\n"
+        raw_text += str(data.describe())
+        save_txt(raw_text, f"alpha_describe/4h-alpha-{alpha}.txt")
 
     # 보간법 사용 내역 저장
     save_interpolation_log()

@@ -23,3 +23,8 @@ def load_transaction_data():
 def load_csv(file_path):
     joined_path = os.path.join(DATA_PATH, file_path)
     return pd.read_csv(joined_path)
+
+def save_txt(value, file_path):
+    joined_path = os.path.join("output", file_path)
+    with open(joined_path, "w") as f:
+        f.write(str(value))
