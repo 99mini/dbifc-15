@@ -11,8 +11,7 @@ def plot_resell_index(
     output_dir, 
     title="Resell Market Index", 
     save=False,
-    show=False
-):
+    show=False ):
     """
     Resell Index 그래프를 생성하는 함수
 
@@ -49,8 +48,7 @@ def plot_single_resell_index(
     output_dir,
     title="resell",
     save=False,
-    show=False
-):
+    show=False ):
     plt.figure(figsize=(10, 5))
     plt.plot(
         data["date_created"], 
@@ -85,8 +83,7 @@ def plot_premium_with_resell_index(
     output_dir, 
     title="Resell & Premium", 
     save=False,
-    show=False
-):
+    show=False):
     """
     :param resell_index_data: df
     :param premium_data_list: 프리미엄 데이터 리스트 (date_created, premium, product_id, name)
@@ -163,3 +160,38 @@ def plot_premium_with_resell_index(
     if show:
         plt.show()
     plt.close()
+
+def plot_stock_index(
+    stock_index_data,
+    output_dir,
+    title="Stock Index",
+    save=False,
+    show=False ):
+    """
+    Parametres:
+    - stock_index_data: df ["날짜", "종가", "시가", "고가", "저가", "거래량", "변동 %"]
+    - output_dir: str
+    - title: str
+    - save: bool
+    - show: bool
+    """
+
+    stock_index_data["날짜"] = pd.to_datetime(stock_index_data["날짜"])
+    plt.figure(figsize=(10, 5))
+    plt.plot(stock_index_data["날짜"], stock_index_data["종가"], marker='o', linestyle='-', color='b', label="Close")
+
+    plt.xlabel("Date")
+    plt.xticks(rotation=45)
+    plt.ylabel("Close")
+    plt.title(title)
+    plt.legend()
+    plt.grid(True)
+
+    if save:
+        plt.savefig(f'output/{output_dir}/{title}.png', dpi=300, bbox_inches='tight')
+
+    if show:
+        plt.show()
+
+    plt.close()
+
