@@ -1,6 +1,5 @@
 #calculate_single_product.py
 #개별 상품 ID별 리셀 지수 계산
-import sys
 import os
 from resell_index import calculate_product_resell_index
 from calculate_resell_market import load_transaction_data
