@@ -43,7 +43,7 @@ def main():
         market_resell_index_24h,
         "resell_index", 
         title="Resell Market Index (24h) - 0115~0215", 
-        save=True,
+        # save=True,
         # show=True
     )
 
@@ -68,16 +68,26 @@ def main():
         market_resell_index_4h,
         "resell_index",
         title="Resell Market Index (4h) - 0115~0215", 
-        save=True,
+        # save=True,
         # show=True
     )
 
-    # alpha값에 따라 resell index 데이터 만들기 4시간 간격
+    # alpha값에 따라 resell index 데이터 만들기 (4시간 간격)
     resell_index_data_with_alpha_4h = []
+    resell_index_data_with_alpha_24h = []
+
     for i in range(0, 11, 2):
         alpha = i / 10
 
-        resell_alpha_df = calculate_resell_market_index_4h(
+        resell_alpha_df_4h = calculate_resell_market_index_4h(
+                transactions, 
+                product_meta, 
+                product_ids, 
+                baseline_date, 
+                alpha
+            )
+        
+        [resell_alpha_df_24h, _] = calculate_resell_market_index(
                 transactions, 
                 product_meta, 
                 product_ids, 
@@ -85,7 +95,9 @@ def main():
                 alpha
             )
 
-        resell_index_data_with_alpha_4h.append([alpha, resell_alpha_df])
+
+        resell_index_data_with_alpha_4h.append([alpha, resell_alpha_df_4h])
+        resell_index_data_with_alpha_24h.append([alpha, resell_alpha_df_24h])
     
     plot_resell_index_for_alpha(
         resell_index_data_with_alpha_4h,
@@ -95,15 +107,37 @@ def main():
         # show=True
     )
 
-    # alpha값에 따른 describe 출력
+    plot_resell_index_for_alpha(
+        resell_index_data_with_alpha_24h,
+        "alpha",
+        title="Resell Market Index (24h) - 0115~0215", 
+        save=True,
+        # show=True
+    )
+
+    # alpha값에 따른 describe 출력 (4시간 간격)
     for alpha, data in resell_index_data_with_alpha_4h:
         print(f"α={alpha}:")
-        print(data.describe())
+        print(data['market_resell_index'].describe())
 
         raw_text = f"{baseline_date}~{endline_date}\n"
+        raw_text += "4시간 간격\n"
+        raw_text += "=====================\n"
         raw_text += f"α={alpha}:\n"
-        raw_text += str(data.describe())
+        raw_text += str(data['market_resell_index'].describe())
         save_txt(raw_text, f"alpha_describe/4h-alpha-{alpha}.txt")
+    
+    # alpha값에 따른 describe 출력 (24시간 간격)
+    for alpha, data in resell_index_data_with_alpha_24h:
+        print(f"α={alpha}:")
+        print(data['market_resell_index'].describe())
+
+        raw_text = f"{baseline_date}~{endline_date}\n"
+        raw_text += "24시간 간격\n"
+        raw_text += "=====================\n"
+        raw_text += f"α={alpha}:\n"
+        raw_text += str(data['market_resell_index'].describe())
+        save_txt(raw_text, f"alpha_describe/24h-alpha-{alpha}.txt")
 
     # 보간법 사용 내역 저장
     save_interpolation_log()
@@ -143,7 +177,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (4h) - 0115~0215",
-        save=True,
+        # save=True,
         # show=True
     )
     plot_premium_with_resell_index(
@@ -151,7 +185,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (24h) - 0115~0215",
-        save=True,
+        # save=True,
         # show=True
     )
 

@@ -4,14 +4,14 @@ from resell_index import calculate_product_resell_index
 from data_processing import get_adjusted_baseline_price, get_adjusted_baseline_volume
 from resell_utils import normalize_index, compute_resell_index_custom, get_discount_volume_threshold
 
-def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date):
+def calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date, alpha = 0.1):
     """
     여러 상품의 리셀 지수를 기반으로 전체 리셀 시장의 대표 지수를 계산하는 함수
     """
     resell_indices = []
 
     for product_id in product_ids:
-        product_index = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha=0.1)
+        product_index = calculate_product_resell_index(transactions, product_meta, product_id, baseline_date, alpha)
 
         '''if product_index.empty:
             continue  # 거래 데이터가 없는 경우 스킵'''
