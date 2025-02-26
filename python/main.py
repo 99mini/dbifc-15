@@ -72,8 +72,8 @@ def main():
         # show=True
     )
 
-    # alpha값에 따라 resell index 데이터 만들기
-    resell_index_data_with_alpha = []
+    # alpha값에 따라 resell index 데이터 만들기 4시간 간격
+    resell_index_data_with_alpha_4h = []
     for i in range(0, 11, 2):
         alpha = i / 10
 
@@ -85,18 +85,18 @@ def main():
                 alpha
             )
 
-        resell_index_data_with_alpha.append([alpha, resell_alpha_df])
+        resell_index_data_with_alpha_4h.append([alpha, resell_alpha_df])
     
     plot_resell_index_for_alpha(
-        resell_index_data_with_alpha,
+        resell_index_data_with_alpha_4h,
         "alpha",
-        title=f"Resell Market Index (4h) - {baseline_date}~{endline_date}", 
+        title="Resell Market Index (4h) - 0115~0215", 
         save=True,
         # show=True
     )
 
     # alpha값에 따른 describe 출력
-    for alpha, data in resell_index_data_with_alpha:
+    for alpha, data in resell_index_data_with_alpha_4h:
         print(f"α={alpha}:")
         print(data.describe())
 
