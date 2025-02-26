@@ -103,7 +103,7 @@ def main():
         resell_index_data_with_alpha_4h,
         "alpha",
         title="Resell Market Index (4h) - 0115~0215", 
-        save=True,
+        # save=True,
         # show=True
     )
 
@@ -111,7 +111,7 @@ def main():
         resell_index_data_with_alpha_24h,
         "alpha",
         title="Resell Market Index (24h) - 0115~0215", 
-        save=True,
+        # save=True,
         # show=True
     )
 
@@ -177,7 +177,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (4h) - 0115~0215",
-        # save=True,
+        save=True,
         # show=True
     )
     plot_premium_with_resell_index(
@@ -185,7 +185,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (24h) - 0115~0215",
-        # save=True,
+        save=True,
         # show=True
     )
 

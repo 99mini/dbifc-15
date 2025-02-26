@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import os
 
+from utils import save_csv
+
 color_list = ['b', 'g', 'r', 'c', 'm', 'k', 'w']
 
 def plot_resell_index(
@@ -36,11 +38,13 @@ def plot_resell_index(
 
     if save:
         plt.savefig(f'output/{output_dir}/{title}_{datetime.now().strftime("%Y-%m-%d-%H-%M-%S")}.png', dpi=300, bbox_inches='tight')
+        save_csv(resell_index_data, f"{output_dir}/{title}_{datetime.now().strftime('%Y-%m-%d-%H-%M-%S')}.csv")
 
     if show:
         plt.show()
 
     plt.close()
+
 
 def plot_single_resell_index(
     data,
@@ -67,6 +71,7 @@ def plot_single_resell_index(
     plt.grid(True)
 
     if save:
+        save_csv(data, f"{output_dir}/{title}_{product_id}.csv")
         filename = f'output/{output_dir}/{title}_{product_id}.png'
 
         if filename not in os.listdir(f"output/{output_dir}"):
@@ -76,6 +81,7 @@ def plot_single_resell_index(
         plt.show()
 
     plt.close()
+
 
 def plot_premium_with_resell_index(
     resell_index_data, 
@@ -157,9 +163,17 @@ def plot_premium_with_resell_index(
 
     if save:
         plt.savefig(f'output/{output_dir}/{title}.png', dpi=300, bbox_inches='tight')
+        save_csv(resell_index_data, f"{output_dir}/{title}-resell.csv")
+
+        for premium_data in premium_data_list:
+            product_id = premium_data["product_id"].values[0]
+            save_csv(premium_data, f"{output_dir}/{title}-{product_id}.csv")
+
     if show:
         plt.show()
     plt.close()
+
+
 
 def plot_resell_index_for_alpha(
     resell_index_data_with_alpha, 
@@ -186,6 +200,10 @@ def plot_resell_index_for_alpha(
 
 
     if save:
+        for values in resell_index_data_with_alpha:
+            alpha, data = values
+            save_csv(data, f"{output_dir}/{title}-α-{alpha}.csv")
+
         plt.savefig(f'output/{output_dir}/{title}.png', dpi=300, bbox_inches='tight')
 
     if show:
@@ -220,6 +238,7 @@ def plot_stock_index(
     plt.grid(True)
 
     if save:
+        save_csv(stock_index_data, f"{output_dir}/{title}.csv")
         plt.savefig(f'output/{output_dir}/{title}.png', dpi=300, bbox_inches='tight')
 
     if show:

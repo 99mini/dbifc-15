@@ -28,3 +28,7 @@ def save_txt(value, file_path):
     joined_path = os.path.join("output", file_path)
     with open(joined_path, "w") as f:
         f.write(str(value))
+
+def save_csv(df, file_path):
+    joined_path = os.path.join("output", file_path)
+    df.to_csv(joined_path, index=False)
