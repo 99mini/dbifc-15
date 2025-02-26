@@ -1,15 +1,14 @@
 #calculate_single_product.py
 #개별 상품 ID별 리셀 지수 계산
-import sys
 import os
 from resell_index import calculate_product_resell_index
 from calculate_resell_market import load_transaction_data
 import pandas as pd
 
 # 데이터 경로 설정
-DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "javascript", "output"))
+DATA_PATH = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "source"))
 # product_meta_data.csv 경로 설정
-product_meta_path = os.path.join(DATA_PATH, "product_meta_data2.csv")
+product_meta_path = os.path.join(DATA_PATH, 'meta', "product_meta_data.csv")
 
 # 파일 존재 여부 확인
 if not os.path.exists(product_meta_path):
