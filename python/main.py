@@ -34,8 +34,30 @@ def main():
     transactions = transactions[transactions["date_created"] >= baseline_date]
     transactions = transactions[transactions["date_created"] < endline_date]
 
+    [_, market_data] = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
+
+    filtered_data = market_data[market_data["date_created"] == baseline_date.split("T")[0]]
+    sorted_data = filtered_data.sort_values(by="total_volume", ascending=False).head(25)
+
+    # 지수에 사용될 상품 id 목록
+    sorted_product_ids = sorted_data["product_id"].tolist()
+
+    # 지수에 편입되지 않은 상품 id 목록
+    non_transfer_product_ids = [id for id in product_ids if id not in sorted_product_ids]
+
+    # 지수에 사용될 상품 목록 출력
+    print(sorted_product_ids)
+
+    # 지수에 사용된 상품 아이디 저장
+    # product_id_raw = f"지수 편입 상품 {len(sorted_product_ids)}개\n"
+    # for id in sorted_product_ids:
+    #     product_id_raw += f"{id}\n"
+
+    # product_id_path = os.path.join('resell_index')
+    # save_txt(product_id_raw, f"{product_id_path}/products.txt")
+
     # 24시간 간격 리셀 시장 지수 계산
-    [market_resell_index_24h, market_data] = calculate_resell_market_index(transactions, product_meta, product_ids, baseline_date)
+    [market_resell_index_24h, _] = calculate_resell_market_index(transactions, product_meta, sorted_product_ids, baseline_date)
     print("\n리셀 시장 지수 (24시간 간격):")
     print(market_resell_index_24h)
 
@@ -46,18 +68,6 @@ def main():
         # save=True,
         # show=True
     )
-
-    filtered_data = market_data[market_data["date_created"] == baseline_date.split("T")[0]]
-    sorted_data = filtered_data.sort_values(by="total_volume", ascending=False).head(25)
-
-    # 지수에 사용될 상품 id 목록
-    sorted_product_ids = sorted_data["product_id"].tolist()
-
-    # 지수에 편입되지 않은 삼풍 id 목록
-    non_transfer_product_ids = [id for id in product_ids if id not in sorted_product_ids]
-
-    # 지수에 사용될 상품 목록 출력
-    print(sorted_product_ids)
 
     # 4시간 간격 리셀 시장 지수 계산
     market_resell_index_4h = calculate_resell_market_index_4h(transactions, product_meta, sorted_product_ids, baseline_date)
@@ -177,7 +187,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (4h) - 0115~0215",
-        save=True,
+        # save=True,
         # show=True
     )
     plot_premium_with_resell_index(
@@ -185,7 +195,7 @@ def main():
         premium_data,
         output_dir="merged",
         title="Resell & Premium (24h) - 0115~0215",
-        save=True,
+        # save=True,
         # show=True
     )
 
