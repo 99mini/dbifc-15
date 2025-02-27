@@ -174,7 +174,6 @@ def plot_premium_with_resell_index(
     plt.close()
 
 
-
 def plot_resell_index_for_alpha(
     resell_index_data_with_alpha, 
     output_dir, 
@@ -228,14 +227,15 @@ def plot_stock_index(
 
     stock_index_data["날짜"] = pd.to_datetime(stock_index_data["날짜"])
     plt.figure(figsize=(10, 5))
-    plt.plot(stock_index_data["날짜"], stock_index_data["종가"], marker='o', linestyle='-', color='b', label="Close")
-
+    
     plt.xlabel("Date")
     plt.xticks(rotation=45)
     plt.ylabel("Close")
     plt.title(title)
     plt.legend()
     plt.grid(True)
+
+    plt.plot(stock_index_data["날짜"], stock_index_data["종가"], linestyle='-', color='b', label="Close")
 
     if save:
         save_csv(stock_index_data, f"{output_dir}/{title}.csv")
